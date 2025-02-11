@@ -7,8 +7,8 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { DeleteRange, GetAllCategory } from "~/components/data";
+import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { DeleteRange, GetAll } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { Separator } from "~/components/ui/separator";
 import { authCookie } from "~/cookies.server";
@@ -23,7 +23,7 @@ export type Category = {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const response = await GetAllCategory(token);
+  const response = await GetAll(token, "category");
   const data = response.result;
   return { data, token };
 };
@@ -37,8 +37,18 @@ const CategoryDataTable = () => {
 
   const handleDelete = async (selectedIds: string[]) => {
     console.log("d", selectedIds);
-    await DeleteRange(selectedIds, token, "category");
-    location.reload();
+    try {
+      await DeleteRange(selectedIds, token, "category");
+      location.reload();
+
+      location.reload();
+    } catch (error: any) {
+      toast({
+        title: error.code,
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (

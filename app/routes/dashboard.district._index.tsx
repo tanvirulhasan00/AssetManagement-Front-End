@@ -7,7 +7,7 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { DeleteRange, GetAllDistrict } from "~/components/data";
+import { DeleteRange, GetAll } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { Separator } from "~/components/ui/separator";
 import { LoaderFunctionArgs } from "@remix-run/node";
@@ -19,7 +19,7 @@ import { PlusCircle } from "lucide-react";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const response = await GetAllDistrict(token);
+  const response = await GetAll(token, "district");
   const data = response.result;
   return { data, token };
 };

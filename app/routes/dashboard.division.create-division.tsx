@@ -8,7 +8,7 @@ import {
 } from "@remix-run/react";
 import { useEffect } from "react";
 
-import { CreateDivision } from "~/components/data";
+import { Create, CreateDivision } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -27,13 +27,14 @@ import { cn } from "~/lib/utils";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const name = formData.get("name") as string;
-  const active = formData.get("active") as string;
+  const formPayload = new FormData();
+  formPayload.append("name", formData.get("name") as string);
+  formPayload.append("active", formData.get("active") as string);
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await CreateDivision(name, active, token);
+    const response = await Create(formPayload, token, "division");
     console.log("cat", response);
 
     if (response.success) {
@@ -42,12 +43,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       );
     } else {
       return redirect(
-        `/dashboard/create-division?error=${response.message}&status=${response.statusCode}`
+        `/dashboard/division/create-division?error=${response.message}&status=${response.statusCode}`
       );
     }
   } catch (error: any) {
     return redirect(
-      `/dashboard/create-division?error=${encodeURIComponent(
+      `/dashboard/division/create-division?error=${encodeURIComponent(
         error.message
       )}&status=${error.code}`
     );
@@ -65,10 +66,10 @@ const EditDivision = ({
   const error = searchParams.get("error");
 
   useEffect(() => {
-    if (statusCode != "200" && error) {
+    if (error) {
       toast({
         title: "Failed",
-        description: `Create ${error} with status code ${statusCode}`,
+        description: `${error} with status code ${statusCode}`,
         variant: "destructive", // Default toast style
       });
     }
@@ -128,7 +129,6 @@ const EditDivision = ({
                     // className: "w-auto fixed top-4 right-4 z-50 space-y-2",
                   });
                   navigate("/dashboard/division");
-                  navigate(-1);
                 }}
                 className="w-full"
               >

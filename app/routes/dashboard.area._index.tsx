@@ -7,10 +7,10 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { Delete, DeleteRange, GetAll } from "~/components/data";
+import { DeleteRange, GetAll } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { Separator } from "~/components/ui/separator";
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { authCookie } from "~/cookies.server";
 import { DataTable } from "~/components/custom-data-table/data-table";
 import { columns } from "~/components/area-columns";

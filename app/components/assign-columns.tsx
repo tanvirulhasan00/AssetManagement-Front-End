@@ -128,19 +128,6 @@ export const columns: ColumnDef<Location>[] = [
                 Update Assign Data
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              {/* <Button
-                variant={"destructive"}
-                onClick={async () => (
-                  await Delete(Number(assign.id), token, "assign"),
-                  window.location.reload()
-                )}
-              >
-                Delete Assign Data
-              </Button> */}
-              Delete
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

@@ -1,4 +1,4 @@
-import { Link, useLocation } from "@remix-run/react";
+import { Link, useLoaderData, useLocation } from "@remix-run/react";
 import {
   ChevronRight,
   Home,
@@ -30,6 +30,7 @@ import {
   SidebarMenuSubItem,
 } from "~/components/ui/sidebar";
 import { cn } from "~/lib/utils";
+import { loader } from "./route";
 
 const NavbarManu = [
   {
@@ -55,12 +56,7 @@ const NavbarManu = [
       },
     ],
   },
-  {
-    title: "User",
-    url: "/dashboard/users",
-    icon: User,
-    isActive: true,
-  },
+
   {
     title: "Category",
     url: "/dashboard/category",
@@ -82,14 +78,21 @@ const NavbarManu = [
     icon: PersonStanding,
   },
   {
+    title: "Family Member",
+    url: "/dashboard/family-member",
+    icon: Contact,
+  },
+  {
     title: "Assign Renter",
     url: "/dashboard/assign",
     icon: ListPlus,
   },
+
   {
-    title: "Family Member",
-    url: "/dashboard/family-member",
-    icon: Contact,
+    title: "User",
+    url: "/dashboard/users",
+    icon: User,
+    isActive: true,
   },
   {
     title: "Histories",
@@ -105,6 +108,7 @@ const NavbarManu = [
 
 const NavMain = () => {
   const location = useLocation();
+  const { role } = useLoaderData<typeof loader>();
 
   return (
     <SidebarGroup>
@@ -132,7 +136,12 @@ const NavMain = () => {
                     </SidebarMenuButton>
                   </Link>
                 ) : (
-                  <Link to={menu.url || "#"}>
+                  <Link
+                    to={menu.url || "#"}
+                    // hidden={
+                    //   role == "manager" && menu.title == "User" ? true : false
+                    // }
+                  >
                     <SidebarMenuButton tooltip={menu.title}>
                       <menu.icon />
                       {menu.title}

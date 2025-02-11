@@ -15,9 +15,12 @@ import { useEffect, useState } from "react";
 
 import {
   CreateFlat,
+  Get,
+  GetAll,
   GetAllCategory,
   GetAllHouse,
   GetFlat,
+  Update,
   UpdateFlat,
 } from "~/components/data";
 import { Button } from "~/components/ui/button";
@@ -40,9 +43,9 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { flatId } = params;
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const responseF = await GetFlat(Number(flatId), token);
-  const responseC = await GetAllCategory(token);
-  const responseH = await GetAllHouse(token);
+  const responseF = await Get(Number(flatId), token, "flat");
+  const responseC = await GetAll(token, "category");
+  const responseH = await GetAll(token, "house");
   const flat = responseF.result;
   const category = responseC.result;
   const house = responseH.result;
@@ -65,7 +68,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await UpdateFlat(formPayload, token);
+    const response = await Update(formPayload, token, "flat");
 
     if (response.success) {
       return redirect(

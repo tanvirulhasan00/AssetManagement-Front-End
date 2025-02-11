@@ -8,7 +8,7 @@ import {
 } from "@remix-run/react";
 import { useEffect } from "react";
 
-import { CreateCategory } from "~/components/data";
+import { Create } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -27,15 +27,16 @@ import { cn } from "~/lib/utils";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const name = formData.get("name") as string;
-  const price = formData.get("price") as string;
-  const active = formData.get("active") as string;
+  const formPayload = new FormData();
+  formPayload.append("name", formData.get("name") as string);
+  formPayload.append("price", formData.get("price") as string);
+  formPayload.append("active", formData.get("active") as string);
 
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await CreateCategory(name, price, active, token);
+    const response = await Create(formPayload, token, "category");
     console.log("cat", response);
 
     if (response.success) {
@@ -44,12 +45,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       );
     } else {
       return redirect(
-        `/dashboard/create-category?error=${response.message}&status=${response.statusCode}`
+        `/dashboard/category/create-category?error=${response.message}&status=${response.statusCode}`
       );
     }
   } catch (error: any) {
     return redirect(
-      `/dashboard/create-category?error=${encodeURIComponent(
+      `/dashboard/category/create-category?error=${encodeURIComponent(
         error.message
       )}&status=${error.code}`
     );

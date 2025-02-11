@@ -146,19 +146,6 @@ export const columns: ColumnDef<FamilyMember>[] = [
                 Update Flat
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              {/* <Button
-                variant={"destructive"}
-                onClick={async () => (
-                  await Delete(Number(flat.id), token, "flat"),
-                  window.location.reload()
-                )}
-              >
-                Delete Flat
-              </Button> */}
-              Delete
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

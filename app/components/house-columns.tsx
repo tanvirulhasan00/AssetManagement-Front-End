@@ -124,19 +124,6 @@ export const columns: ColumnDef<House>[] = [
                 Update House
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              {/* <Button
-                variant={"destructive"}
-                onClick={async () => (
-                  await Delete(Number(house.id), token, "house"),
-                  window.location.reload()
-                )}
-              >
-                Delete House
-              </Button> */}
-              Delete
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );

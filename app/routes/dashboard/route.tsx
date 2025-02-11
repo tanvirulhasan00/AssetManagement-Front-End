@@ -18,7 +18,7 @@ import { useEffect, useState } from "react";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { Toaster } from "~/components/ui/toaster";
 import { toast } from "~/hooks/use-toast";
-import { GetUser } from "~/components/data";
+import { GetUser, UserRole } from "~/components/data";
 
 export const action = async () => {
   return redirect("/", {
@@ -43,8 +43,9 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookie = (await authCookie.parse(cookieHeader)) || null;
   const userId = (await userIdCookie.parse(cookieUserId)) || null;
   const user = await GetUser(userId, cookie);
+  const userRole = await UserRole(userId);
 
-  return { token: cookie, user: user }; // No redirect if we're already at /dashboard/home or deeper
+  return { token: cookie, user: user, role: userRole }; // No redirect if we're already at /dashboard/home or deeper
 };
 
 const DashboardLayout = () => {

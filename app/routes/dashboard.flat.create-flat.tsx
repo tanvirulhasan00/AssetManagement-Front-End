@@ -13,7 +13,13 @@ import {
 } from "@remix-run/react";
 import { useEffect } from "react";
 
-import { CreateFlat, GetAllCategory, GetAllHouse } from "~/components/data";
+import {
+  Create,
+  CreateFlat,
+  GetAll,
+  GetAllCategory,
+  GetAllHouse,
+} from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -33,8 +39,8 @@ import { cn } from "~/lib/utils";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const responseC = await GetAllCategory(token);
-  const responseH = await GetAllHouse(token);
+  const responseC = await GetAll(token, "category");
+  const responseH = await GetAll(token, "house");
   const category = responseC.result;
   const house = responseH.result;
   return { category, house };
@@ -55,8 +61,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await CreateFlat(formPayload, token);
-    console.log("cat", response);
+    const response = await Create(formPayload, token, "flat");
 
     if (response.success) {
       return redirect(

@@ -13,7 +13,7 @@ import {
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-import { GetAllArea, GetHouse, UpdateHouse } from "~/components/data";
+import { Get, GetAll, Update } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -34,8 +34,8 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { houseId } = params;
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const houseData = await GetHouse(Number(houseId), token);
-  const response = await GetAllArea(token);
+  const houseData = await Get(Number(houseId), token, "house");
+  const response = await GetAll(token, "area");
   const house = houseData.result;
   console.log("loaderHOuse", house);
   const area = response.result;
@@ -60,7 +60,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await UpdateHouse(formPayload, token);
+    const response = await Update(formPayload, token, "house");
 
     if (response.success) {
       return redirect(
@@ -98,7 +98,7 @@ const UpdateHouseFunc = ({
     if (error) {
       toast({
         title: "Failed",
-        description: `Update ${error} with status code ${statusCode}`,
+        description: `${error} with status code ${statusCode}`,
         variant: "destructive", // Default toast style
       });
     }
@@ -248,7 +248,7 @@ const UpdateHouseFunc = ({
                     variant: "destructive",
                     title: "update cancelled",
                   });
-                  navigate(`/dashboard/house/`);
+                  navigate(`/dashboard/house`);
                 }}
                 className="w-full"
               >

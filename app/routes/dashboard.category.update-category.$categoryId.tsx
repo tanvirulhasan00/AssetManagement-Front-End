@@ -12,7 +12,7 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { GetCategory, UpdateCategory } from "~/components/data";
+import { Get, Update } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -33,7 +33,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const { categoryId } = params;
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const response = await GetCategory(Number(categoryId), token);
+  const response = await Get(Number(categoryId), token, "category");
   const data = response.result;
 
   return { data };
@@ -42,21 +42,17 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
   const id = formData.get("id");
-  const name = formData.get("name") as string;
-  const price = formData.get("price") as string;
-  const active = formData.get("active") as string;
+  const formPayload = new FormData();
+  formPayload.append("id", id as string);
+  formPayload.append("name", formData.get("name") as string);
+  formPayload.append("price", formData.get("price") as string);
+  formPayload.append("active", formData.get("active") as string);
+
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  console.log("cat", id, name, active, token);
 
   try {
-    const response = await UpdateCategory(
-      Number(id),
-      name,
-      price,
-      active,
-      token
-    );
+    const response = await Update(formPayload, token, "category");
 
     if (response.success) {
       return redirect(

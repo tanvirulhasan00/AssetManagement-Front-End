@@ -9,7 +9,7 @@ import {
 } from "@remix-run/react";
 import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
-import { GetRenter } from "~/components/data";
+import { Get } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { authCookie } from "~/cookies.server";
 import { toast } from "~/hooks/use-toast";
@@ -19,7 +19,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
-  const response = await GetRenter(Number(renterId), token);
+  const response = await Get(Number(renterId), token, "renter");
   const renter = await response.result;
 
   return { renter };

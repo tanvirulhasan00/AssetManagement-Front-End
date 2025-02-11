@@ -9,10 +9,11 @@ import {
   useLoaderData,
   useNavigate,
   useRouteError,
+  useSearchParams,
 } from "@remix-run/react";
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { GetUser } from "~/components/data";
+import { GetUser, UpdateMulti } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -78,25 +79,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   console.log("edit-profile", formPayload);
   // Send request
   try {
-    const response = await axios.post(
-      "http://localhost:5233/api/v1/user/update",
-      formPayload,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`, // Include token here
-        },
-      }
-    );
+    const response = await UpdateMulti(formPayload, token, "user");
+    const { success, message, statusCode } = response;
 
-    if (response.data.success) {
+    if (success) {
       return redirect(
-        `/dashboard/users/${userId}?message=${response.data.message}&status=${response.data.statusCode}`
+        `/dashboard/users/${userId}?message=${message}&status=${statusCode}`
+      );
+    } else {
+      return redirect(
+        `/dashboard/users/update-user/${userId}?error=${message}&status=${statusCode}`
       );
     }
   } catch (error: any) {
     return redirect(
-      `/dashboard/edit-profile/${userId}?error=${encodeURIComponent(
+      `/dashboard/users/update-user/${userId}?error=${encodeURIComponent(
         error.message
       )}&status=${error.code}`
     );
@@ -109,6 +106,26 @@ const UserEditProfile = ({
 }: React.ComponentPropsWithoutRef<"div">) => {
   const { user } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const statusCode = searchParams.get("status");
+  const error = searchParams.get("error");
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Failed",
+        description: `${error} with status code ${statusCode}`,
+        variant: "destructive", // Default toast style
+      });
+    }
+
+    // ✅ Remove query params AFTER toast is shown
+    if (error) {
+      setTimeout(() => setSearchParams({}, { replace: true }), 1000);
+    }
+  }, [statusCode, error, setSearchParams]);
 
   // State for form fields
   const [formData, setFormData] = useState({

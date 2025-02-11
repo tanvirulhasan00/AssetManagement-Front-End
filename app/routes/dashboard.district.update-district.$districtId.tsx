@@ -9,9 +9,10 @@ import {
   useLoaderData,
   useNavigate,
   useRouteError,
+  useSearchParams,
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { GetDistrict, UpdateDistrict } from "~/components/data";
+import { Get, GetDistrict, Update, UpdateDistrict } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -32,7 +33,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const { districtId } = params;
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const response = await GetDistrict(Number(districtId), token);
+  const response = await Get(Number(districtId), token, "district");
   const data = response.result;
 
   return { data };
@@ -40,14 +41,16 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const id = formData.get("id");
-  const name = formData.get("name") as string;
-  const active = formData.get("active") as string;
+  const formPayload = new FormData();
+  const id = formData.get("id") as string;
+  formPayload.append("id", id);
+  formPayload.append("name", formData.get("name") as string);
+  formPayload.append("active", formData.get("active") as string);
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await UpdateDistrict(Number(id), name, active, token);
+    const response = await Update(formPayload, token, "district");
 
     if (response.success) {
       return redirect(
@@ -55,12 +58,12 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       );
     } else {
       return redirect(
-        `/dashboard/district/${id}?error=${response.message}&status=${response.statusCode}`
+        `/dashboard/district/update-district/${id}?error=${response.message}&status=${response.statusCode}`
       );
     }
   } catch (error: any) {
     return redirect(
-      `/dashboard/district/${id}?error=${encodeURIComponent(
+      `/dashboard/district/update-district/${id}?error=${encodeURIComponent(
         error.message
       )}&status=${error.code}`
     );
@@ -73,6 +76,26 @@ const EditDistrict = ({
 }: React.ComponentPropsWithoutRef<"div">) => {
   const { data } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const statusCode = searchParams.get("status");
+  const error = searchParams.get("error");
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Failed",
+        description: `${error} with status code ${statusCode}`,
+        variant: "destructive", // Default toast style
+      });
+    }
+
+    // ✅ Remove query params AFTER toast is shown
+    if (error) {
+      setTimeout(() => setSearchParams({}, { replace: true }), 1000);
+    }
+  }, [statusCode, error, setSearchParams]);
 
   // State for form fields
   const [formData, setFormData] = useState({
@@ -143,7 +166,7 @@ const EditDistrict = ({
                     variant: "destructive",
                     title: "Update cancelled",
                   });
-                  navigate("/dashboard/division");
+                  navigate("/dashboard/district");
                   navigate(-1);
                 }}
                 className="w-full"

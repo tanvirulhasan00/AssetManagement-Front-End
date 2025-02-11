@@ -30,9 +30,9 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const password = formData.get("password") as string;
 
   const res = await Login(username, password);
-  const { user, token } = await res.result;
+  // const { user, token } = await res.result;
 
-  console.log("login", user);
+  // console.log("login", user);
 
   if (res.success) {
     return redirect(
@@ -40,16 +40,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
       {
         headers: {
           "Set-Cookie": [
-            await authCookie.serialize(token),
-            await userIdCookie.serialize(user.id),
+            await authCookie.serialize(res.result.token),
+            await userIdCookie.serialize(res.result.user.id),
           ].join(", "),
         },
       }
     );
   } else {
-    return redirect(
-      `/login?message=${res.message}&status=${res.statusCode}&error=${res.error}`
-    );
+    return redirect(`/login?error=${res.message}&status=${res.statusCode}`);
   }
 };
 
@@ -63,8 +61,8 @@ const LoginPage = () => {
   useEffect(() => {
     if (error) {
       toast({
-        title: "Error",
-        description: message,
+        title: `Error code : ${statusCode}`,
+        description: `${error}`,
         variant: "destructive",
       });
     }

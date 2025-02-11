@@ -22,10 +22,10 @@ import {
 } from "~/components/ui/select";
 import { useEffect, useState } from "react";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-import axios from "axios";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { toast } from "~/hooks/use-toast";
 import { authCookie } from "~/cookies.server";
+import { UserRegistration } from "~/components/data";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
@@ -88,34 +88,25 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
 
     // Send API request
-    const response = await axios.post(
-      "http://localhost:5233/api/v1/auth/registration",
-      formPayload,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const response = await UserRegistration(formPayload, token);
 
-    const { success, message, statusCode } = response.data;
+    const { success, message, statusCode } = response;
 
     return redirect(
       success
         ? `/dashboard/users?status=${encodeURIComponent(
             statusCode
           )}&message=${encodeURIComponent(message)}`
-        : `/dashboard/registration?error=${encodeURIComponent(
+        : `/dashboard/users/registration?error=${encodeURIComponent(
             message
           )}&status=${encodeURIComponent(statusCode)}`
     );
   } catch (error: any) {
     console.error("Registration failed:", error);
     return redirect(
-      `/dashboard/registration?error=${encodeURIComponent(
-        error.response?.data?.message || "An unexpected error occurred."
-      )}`
+      `/dashboard/users/registration?error=${encodeURIComponent(
+        error.message || "An unexpected error occurred."
+      )}&status=${error.code}`
     );
   }
 };

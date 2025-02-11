@@ -13,7 +13,12 @@ import {
 } from "@remix-run/react";
 import { useEffect } from "react";
 
-import { CreateFamilyMember, GetAllRenter } from "~/components/data";
+import {
+  CreateFamilyMember,
+  CreateMulti,
+  GetAll,
+  GetAllRenter,
+} from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -57,7 +62,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await CreateFamilyMember(formPayload, token);
+    const response = await CreateMulti(formPayload, token, "family-member");
 
     if (response.success) {
       return redirect(
@@ -80,7 +85,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const renterRes = await GetAllRenter(token);
+  const renterRes = await GetAll(token, "renter");
   const renter = renterRes.result;
   // Sort by date (latest first)
   const sortedRenters = renter.sort(

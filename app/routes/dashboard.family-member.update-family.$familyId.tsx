@@ -13,11 +13,7 @@ import {
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-import {
-  GetAllRenter,
-  GetFamilyMember,
-  UpdateFamilyMember,
-} from "~/components/data";
+import { Get, GetAll, UpdateMulti } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -63,7 +59,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await UpdateFamilyMember(formPayload, token);
+    const response = await UpdateMulti(formPayload, token, "family-member");
 
     if (response.success) {
       return redirect(
@@ -87,11 +83,11 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const { familyId } = params;
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const familyRes = await GetFamilyMember(Number(familyId), token);
-  const renterRes = await GetAllRenter(token);
+  const familyRes = await Get(Number(familyId), token, "family-member");
+  const renterRes = await GetAll(token, "renter");
   const renter = renterRes.result;
   const familyMember = familyRes.result;
-  console.log("fam", familyMember);
+
   // Sort by date (latest first)
   const sortedRenters = renter.sort(
     (a, b) =>

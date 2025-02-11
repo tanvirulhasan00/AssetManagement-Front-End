@@ -8,7 +8,7 @@ import {
 import { PlusCircle } from "lucide-react";
 import { useEffect } from "react";
 import { DataTable } from "~/components/custom-data-table/data-table";
-import { DeleteRange, GetAllUser } from "~/components/data";
+import { DeleteRange, GetAll, GetAllUser } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { columns } from "~/components/user-columns";
@@ -18,7 +18,7 @@ import { toast } from "~/hooks/use-toast";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const response = await GetAllUser(token);
+  const response = await GetAll(token, "user");
   const data = await response.result;
   return { data, token };
 };

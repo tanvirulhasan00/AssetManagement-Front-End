@@ -21,11 +21,10 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { useEffect } from "react";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { ActionFunctionArgs } from "@remix-run/node";
 import { toast } from "~/hooks/use-toast";
 import { authCookie } from "~/cookies.server";
-import { CreateRenter, Renter } from "~/components/data";
+import { CreateMulti } from "~/components/data";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   try {
@@ -84,7 +83,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
 
     // Send API request
-    const response = await CreateRenter(formPayload, token);
+    const response = await CreateMulti(formPayload, token, "renter");
 
     return redirect(
       response.success

@@ -25,14 +25,14 @@ import { useEffect, useState } from "react";
 import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { toast } from "~/hooks/use-toast";
 import { authCookie } from "~/cookies.server";
-import { GetRenter, UpdateRenter } from "~/components/data";
+import { Get, UpdateMulti } from "~/components/data";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const { renterId } = params;
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
-  const response = await GetRenter(Number(renterId), token);
+  const response = await Get(Number(renterId), token, "renter");
   const renter = await response.result;
 
   if (!response.success) {
@@ -102,21 +102,21 @@ export const action = async ({ request }: ActionFunctionArgs) => {
     );
 
     // Send API request
-    const response = await UpdateRenter(formPayload, token);
+    const response = await UpdateMulti(formPayload, token, "renter");
 
     return redirect(
       response.success
         ? `/dashboard/renter/${renterId}?status=${encodeURIComponent(
             response.statusCode
           )}&message=${encodeURIComponent(response.message)}`
-        : `/dashboard/renter/edit-profile/${renterId}?error=${encodeURIComponent(
+        : `/dashboard/renter/update-renter/${renterId}?error=${encodeURIComponent(
             response.message
           )}&status=${encodeURIComponent(response.statusCode)}`
     );
   } catch (error: any) {
     // console.error("Registration failed:", error);
     return redirect(
-      `/dashboard/renter/edit-profile/${renterId}?error=${encodeURIComponent(
+      `/dashboard/renter/update-renter/${renterId}?error=${encodeURIComponent(
         error.message || "An unexpected error occurred."
       )}&status=${encodeURIComponent(error.code)}`
     );
@@ -236,7 +236,7 @@ const RegistrationForm = ({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="flex justify-center items-center">
-          <CardTitle className="text-2xl">Renter Registration</CardTitle>
+          <CardTitle className="text-2xl">Update Renter Info</CardTitle>
         </CardHeader>
         <CardContent>
           <Form

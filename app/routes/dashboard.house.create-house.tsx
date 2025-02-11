@@ -13,7 +13,7 @@ import {
 } from "@remix-run/react";
 import { useEffect } from "react";
 
-import { CreateHouse, GetAllArea } from "~/components/data";
+import { Create, GetAll } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -33,7 +33,7 @@ import { cn } from "~/lib/utils";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const response = await GetAllArea(token);
+  const response = await GetAll(token, "area");
   const area = response.result;
   return { area };
 };
@@ -54,8 +54,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await CreateHouse(formPayload, token);
-    console.log("cat", response);
+    const response = await Create(formPayload, token, "house");
 
     if (response.success) {
       return redirect(
@@ -92,7 +91,7 @@ const CreateHouseFunc = ({
     if (error) {
       toast({
         title: "Failed",
-        description: `Create ${error} with status code ${statusCode}`,
+        description: `${error} with status code ${statusCode}`,
         variant: "destructive", // Default toast style
       });
     }

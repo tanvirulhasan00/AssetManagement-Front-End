@@ -9,9 +9,10 @@ import {
   useLoaderData,
   useNavigate,
   useRouteError,
+  useSearchParams,
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { GetDivision, UpdateDivision } from "~/components/data";
+import { Get, GetDivision, Update, UpdateDivision } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -32,7 +33,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const { divisionId } = params;
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const response = await GetDivision(Number(divisionId), token);
+  const response = await Get(Number(divisionId), token, "division");
   const data = response.result;
 
   return { data };
@@ -40,24 +41,30 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const id = formData.get("id");
-  const name = formData.get("name") as string;
-  const active = formData.get("active") as string;
+  const id = formData.get("id") as string;
+  const formPayload = new FormData();
+  formPayload.append("id", id);
+  formPayload.append("name", formData.get("name") as string);
+  formPayload.append("active", formData.get("active") as string);
+
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await UpdateDivision(Number(id), name, active, token);
-    console.log("cat", response);
+    const response = await Update(formPayload, token, "division");
 
     if (response.success) {
       return redirect(
         `/dashboard/division?message=${response.message}&status=${response.statusCode}`
       );
+    } else {
+      return redirect(
+        `/dashboard/division/update-division/${id}?error=${response.message}&status=${response.statusCode}`
+      );
     }
   } catch (error: any) {
     return redirect(
-      `/dashboard/division/${id}?error=${encodeURIComponent(
+      `/dashboard/division/update-division/${id}?error=${encodeURIComponent(
         error.message
       )}&status=${error.code}`
     );
@@ -70,6 +77,26 @@ const EditDivision = ({
 }: React.ComponentPropsWithoutRef<"div">) => {
   const { data } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const statusCode = searchParams.get("status");
+  const error = searchParams.get("error");
+
+  useEffect(() => {
+    if (error) {
+      toast({
+        title: "Failed",
+        description: `${error} with status code ${statusCode}`,
+        variant: "destructive", // Default toast style
+      });
+    }
+
+    // ✅ Remove query params AFTER toast is shown
+    if (error) {
+      setTimeout(() => setSearchParams({}, { replace: true }), 1000);
+    }
+  }, [statusCode, error, setSearchParams]);
 
   // State for form fields
   const [formData, setFormData] = useState({

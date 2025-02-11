@@ -101,19 +101,6 @@ export const columns: ColumnDef<Category>[] = [
                 Update Cetegory
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="cursor-pointer">
-              {/* <Button
-                variant={"destructive"}
-                onClick={async () => (
-                  await Delete(Number(catId.id), token, "category"),
-                  window.location.reload()
-                )}
-              >
-                Delete Cetegory
-              </Button> */}{" "}
-              Delete
-            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
