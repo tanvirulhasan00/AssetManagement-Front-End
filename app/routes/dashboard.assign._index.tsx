@@ -21,7 +21,6 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
   const response = await GetAll(token, "assign");
   const data = response.result;
-  console.log("dd", data);
 
   return { data, token };
 };
@@ -30,8 +29,16 @@ const AssignDataTable = () => {
   const { data, token } = useLoaderData<typeof loader>();
 
   const handleDelete = async (selectedIds: string[]) => {
-    await DeleteRange(selectedIds, token, "assign");
-    location.reload();
+    try {
+      await DeleteRange(selectedIds, token, "assign");
+      location.reload();
+    } catch (error: any) {
+      toast({
+        title: error.code,
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (

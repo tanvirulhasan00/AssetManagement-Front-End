@@ -1,56 +1,48 @@
-import { useEffect } from "react";
-
-import { Button } from "~/components/ui/button";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   Link,
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { DeleteRange, GetAll } from "~/components/data";
-import { toast } from "~/hooks/use-toast";
-import { Separator } from "~/components/ui/separator";
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { authCookie } from "~/cookies.server";
-import { DataTable } from "~/components/custom-data-table/data-table";
-import { columns } from "~/components/district-columns";
 import { PlusCircle } from "lucide-react";
+import { useEffect } from "react";
+import { DataTable } from "~/components/custom-data-table/data-table";
+import { GetAll } from "~/components/data";
+import { columns } from "../components/payment-columns";
+import { Button } from "~/components/ui/button";
+import { Separator } from "~/components/ui/separator";
+import { authCookie } from "~/cookies.server";
+import { toast } from "~/hooks/use-toast";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const response = await GetAll(token, "district");
-  const data = response.result;
-  return { data, token };
+  const response = await GetAll(token, "payment");
+  const data = await response.result;
+  return { data };
 };
 
-const DistrictDataTable = () => {
-  const { data, token } = useLoaderData<typeof loader>();
+const PaymentDataTable = () => {
+  const { data } = useLoaderData<typeof loader>();
 
   const handleDelete = async (selectedIds: string[]) => {
-    try {
-      await DeleteRange(selectedIds, token, "district");
-      location.reload();
-    } catch (error: any) {
-      toast({
-        title: error.code,
-        description: error.message,
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: "Payment can't be deleted",
+      variant: "destructive",
+    });
   };
-
   return (
-    <div className="w-full">
+    <div>
       <div className="flex justify-between items-center">
-        <h1>District List</h1>
+        <h1>Payment List</h1>
         <Button>
           <Link
-            to={`/dashboard/district/create-district/`}
+            to={"/dashboard/payment/create-payment"}
             className="flex items-center gap-1"
           >
             <PlusCircle />
-            Add District
+            Create Payment
           </Link>
         </Button>
       </div>
@@ -60,7 +52,7 @@ const DistrictDataTable = () => {
   );
 };
 
-export default DistrictDataTable;
+export default PaymentDataTable;
 
 export function ErrorBoundary() {
   const error = useRouteError();

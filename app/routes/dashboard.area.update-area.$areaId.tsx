@@ -78,7 +78,6 @@ export const loader = async ({ request, params }: LoaderFunctionArgs) => {
   const district = disRes.result;
   const division = divRes.result;
   const area = areaRes.result;
-  console.log("f", area);
 
   return { area, district, division };
 };

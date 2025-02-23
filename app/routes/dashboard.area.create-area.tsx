@@ -8,10 +8,11 @@ import {
   isRouteErrorResponse,
   useLoaderData,
   useNavigate,
+  useNavigation,
   useRouteError,
   useSearchParams,
 } from "@remix-run/react";
-import { useEffect } from "react";
+import { useEffect, useTransition } from "react";
 
 import { Create, GetAll } from "~/components/data";
 import { Button } from "~/components/ui/button";
@@ -82,6 +83,7 @@ const CreateArea = ({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const { district, division } = useLoaderData<typeof loader>();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -89,6 +91,10 @@ const CreateArea = ({
   const message = searchParams.get("message");
   const statusCode = searchParams.get("status");
   const error = searchParams.get("error");
+
+  const isAdding =
+    navigation.state === "submitting" &&
+    navigation.formData?.get("action") === "create";
 
   useEffect(() => {
     if (error) {
@@ -205,8 +211,8 @@ const CreateArea = ({
                 </Select>
               </div>
 
-              <Button type="submit" className="w-full">
-                Create
+              <Button type="submit" className="w-full" name="action">
+                {isAdding ? "Creating..." : "Create"}
               </Button>
               <Button
                 variant={"destructive"}

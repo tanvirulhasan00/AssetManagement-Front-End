@@ -13,6 +13,7 @@ import {
   Leaf,
   Plus,
   ListPlus,
+  BadgeDollarSign,
 } from "lucide-react";
 import {
   Collapsible,
@@ -38,6 +39,11 @@ const NavbarManu = [
     url: "/dashboard/home",
     icon: Home,
     isActive: true,
+  },
+  {
+    title: "Payment",
+    url: "/dashboard/payment",
+    icon: BadgeDollarSign,
   },
   {
     title: "Areas",

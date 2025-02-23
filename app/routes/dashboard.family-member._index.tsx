@@ -28,8 +28,16 @@ const FamilyMemberDataTable = () => {
   const { data, token } = useLoaderData<typeof loader>();
 
   const handleDelete = async (selectedIds: string[]) => {
-    await DeleteRange(selectedIds, token, "family-member");
-    location.reload();
+    try {
+      await DeleteRange(selectedIds, token, "family-member");
+      location.reload();
+    } catch (error: any) {
+      toast({
+        title: error.code,
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (

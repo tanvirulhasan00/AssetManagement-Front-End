@@ -11,9 +11,9 @@ import {
   useRouteError,
   useSearchParams,
 } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 
-import { Create, Get, GetAll } from "~/components/data";
+import { Create, GetAll } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -26,63 +26,67 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { authCookie } from "~/cookies.server";
+import { authCookie, userIdCookie } from "~/cookies.server";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
+
+export const loader = async ({ request }: LoaderFunctionArgs) => {
+  const cookieHeader = request.headers.get("Cookie");
+  const token = (await authCookie.parse(cookieHeader)) || null;
+  const userId = (await userIdCookie.parse(cookieHeader)) || null;
+  const response = await GetAll(token, "renter");
+  const renters = response.result;
+  return { renters, userId };
+};
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
 
   const formPayload = new FormData();
-  formPayload.append("renterId", formData.get("renter") as string);
-  formPayload.append("flatId", formData.get("flat") as string);
-  formPayload.append("flatPrice", formData.get("flatPrice") as string);
-  formPayload.append("active", formData.get("active") as string);
+  formPayload.append("userId", formData.get("userId") as string);
+  formPayload.append("renterId", formData.get("renterId") as string);
+  formPayload.append("transactionId", formData.get("transactionId") as string);
+  formPayload.append("paymentMethod", formData.get("paymentMethod") as string);
+  formPayload.append("paymentAmount", formData.get("paymentAmount") as string);
+  formPayload.append(
+    "paymentDueAmount",
+    formData.get("paymentDueAmount") as string
+  );
+
+  formPayload.append("paymentStatus", formData.get("paymentStatus") as string);
 
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await Create(formPayload, token, "assign");
+    const response = await Create(formPayload, token, "payment");
 
     if (response.success) {
       return redirect(
-        `/dashboard/assign?message=${response.message}&status=${response.statusCode}`
+        `/dashboard/payment?message=${response.message}&status=${response.statusCode}`
       );
     } else {
       return redirect(
-        `/dashboard/assign/create-assign?error=${response.message}&status=${response.statusCode}`
+        `/dashboard/payment/create-payment?error=${response.message}&status=${response.statusCode}`
       );
     }
   } catch (error: any) {
     return redirect(
-      `/dashboard/assign/create-assign?error=${encodeURIComponent(
+      `/dashboard/payment/create-payment?error=${encodeURIComponent(
         error.message
       )}&status=${error.code}`
     );
   }
 };
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
-  const cookieHeader = request.headers.get("Cookie");
-  const token = (await authCookie.parse(cookieHeader)) || null;
-  const renterRes = await GetAll(token, "renter");
-  const flatRes = await GetAll(token, "flat");
-  const filterFlat = flatRes.result;
-  const renter = renterRes.result;
-  const flat = filterFlat.filter(
-    (item: any) => !item.assignedId || item.assignedId.trim() === ""
-  );
-
-  return { renter, flat, token };
-};
-
-const CreateAssign = ({
+const CreateHouseFunc = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
+  const { renters, userId } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const { renter, flat, token } = useLoaderData<typeof loader>();
+  const [open, setOpen] = React.useState(false);
+  const [value, setValue] = React.useState("");
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -91,10 +95,10 @@ const CreateAssign = ({
   const error = searchParams.get("error");
 
   useEffect(() => {
-    if (statusCode != "200" && error) {
+    if (error) {
       toast({
-        title: "Failed",
-        description: `Create ${error} with status code ${statusCode}`,
+        title: `Failed status code ${statusCode}`,
+        description: `${error}`,
         variant: "destructive", // Default toast style
       });
     }
@@ -105,97 +109,90 @@ const CreateAssign = ({
     }
   }, [statusCode, message, error, setSearchParams]);
 
-  const [formData, setFormData] = useState({
-    flatPrice: "",
-  });
-
-  const handleValueChange = async (value: string) => {
-    const singleFlat = await Get(Number(value), token, "flat");
-    const flat = singleFlat.result;
-    setFormData({
-      ...formData,
-      flatPrice: flat.category.price,
-    });
-  };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, flatPrice: e.target.value });
-  };
   return (
     <div className={cn("flex flex-col gap-6 ", className)} {...props}>
       <Card className="">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-2xl">Assign Renter</CardTitle>
+            <CardTitle className="text-2xl">Create Payment</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <Form method="post">
-            {/* <Input type="hidden" name="id" /> */}
+            <Input type="hidden" name="userId" id="userId" value={userId} />
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="renter">Renter</Label>
-                <Select name="renter">
-                  <SelectTrigger id="renter">
+                <Select name="renterId">
+                  <SelectTrigger id="renterId">
                     <SelectValue placeholder="Select renter" />
                   </SelectTrigger>
                   <SelectContent>
-                    {renter.map((rent: any) => (
-                      <SelectGroup key={rent.id}>
-                        <SelectItem value={rent.id.toString()}>
-                          {rent.name}
+                    {renters.map((renter: any) => (
+                      <SelectGroup key={renter.id}>
+                        <SelectItem value={renter.id.toString()}>
+                          {renter.name}
                         </SelectItem>
                       </SelectGroup>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+              <div className="grid gap-2"></div>
               <div className="grid gap-2">
-                <Label htmlFor="flat">Flat</Label>
-                <Select
-                  name="flat"
-                  onValueChange={(value) => handleValueChange(value)}
-                >
-                  <SelectTrigger id="flat">
-                    <SelectValue placeholder="Select flat" />
+                <Label htmlFor="transactionId">Transaction Number</Label>
+                <Input
+                  id="transactionId"
+                  name="transactionId"
+                  type="text"
+                  placeholder="transaction number"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Select name="paymentMethod">
+                  <SelectTrigger id="paymentMethod">
+                    <SelectValue placeholder="Select payment method" />
                   </SelectTrigger>
                   <SelectContent>
-                    {flat.length > 0 ? (
-                      flat.map((fla: any) => (
-                        <SelectGroup key={fla.id}>
-                          <SelectItem value={fla.id.toString()}>
-                            {fla.name}
-                          </SelectItem>
-                        </SelectGroup>
-                      ))
-                    ) : (
-                      <SelectGroup>
-                        <SelectItem value="no">No Flat</SelectItem>
-                      </SelectGroup>
-                    )}
+                    <SelectGroup>
+                      <SelectItem value={"cash"}>Cash</SelectItem>
+                      <SelectItem value={"bank"}>Bank</SelectItem>
+                      <SelectItem value={"bkash"}>Bkash</SelectItem>
+                      <SelectItem value={"nagad"}>Nagad</SelectItem>
+                      <SelectItem value={"rocket"}>Rocket</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="flatPrice">Flat Price</Label>
+                <Label htmlFor="paymentAmount">Payment Amount</Label>
                 <Input
-                  id="flatPrice"
-                  name="flatPrice"
-                  value={formData.flatPrice}
-                  onChange={handleChange}
+                  id="paymentAmount"
+                  name="paymentAmount"
                   type="number"
-                  placeholder="flat price"
+                  placeholder="payment amount"
                   required
                 />
               </div>
               <div className="grid gap-2">
-                <Select name="active">
-                  <SelectTrigger id="active">
-                    <SelectValue placeholder="Select active status" />
+                <Label htmlFor="paymentDueAmount">Payment Due Amount</Label>
+                <Input
+                  id="paymentDueAmount"
+                  name="paymentDueAmount"
+                  type="number"
+                  placeholder="payment due amount"
+                  defaultValue={0}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Select name="paymentStatus">
+                  <SelectTrigger id="paymentStatus">
+                    <SelectValue placeholder="Select payment status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value={"1"}>Active</SelectItem>
-                      <SelectItem value={"0"}>InActive</SelectItem>
+                      <SelectItem value={"paid"}>Paid</SelectItem>
+                      <SelectItem value={"due"}>Due</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
@@ -212,8 +209,7 @@ const CreateAssign = ({
                     variant: "destructive",
                     title: "Create cancelled",
                   });
-                  // navigate(-1);
-                  navigate("/dashboard/assign");
+                  navigate("/dashboard/payment");
                 }}
                 className="w-full"
               >
@@ -227,7 +223,7 @@ const CreateAssign = ({
   );
 };
 
-export default CreateAssign;
+export default CreateHouseFunc;
 
 export function ErrorBoundary() {
   const error = useRouteError();

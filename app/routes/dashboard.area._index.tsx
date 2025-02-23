@@ -5,6 +5,7 @@ import {
   isRouteErrorResponse,
   Link,
   useLoaderData,
+  useNavigation,
   useRouteError,
 } from "@remix-run/react";
 import { DeleteRange, GetAll } from "~/components/data";
@@ -28,9 +29,21 @@ const AreaDataTable = () => {
   const { data, token } = useLoaderData<typeof loader>();
 
   const handleDelete = async (selectedIds: string[]) => {
-    await DeleteRange(selectedIds, token, "area");
-    location.reload();
+    try {
+      await DeleteRange(selectedIds, token, "area");
+      location.reload();
+    } catch (error: any) {
+      toast({
+        title: error.code,
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
+  const navigation = useNavigation();
+  useEffect(() => {
+    navigation.state === "loading" ? <div>Loading...</div> : null;
+  }, [navigation]);
 
   return (
     <div className="w-full">

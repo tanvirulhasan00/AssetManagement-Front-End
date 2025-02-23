@@ -27,8 +27,16 @@ const Users = () => {
   const { data, token } = useLoaderData<typeof loader>();
 
   const handleDelete = async (selectedIds: string[]) => {
-    await DeleteRange(selectedIds, token, "user");
-    location.reload();
+    try {
+      await DeleteRange(selectedIds, token, "user");
+      location.reload();
+    } catch (error: any) {
+      toast({
+        title: error.code,
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
   return (
     <div>

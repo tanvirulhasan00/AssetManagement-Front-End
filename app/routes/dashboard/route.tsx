@@ -11,6 +11,7 @@ import {
   redirect,
   useRouteError,
   useSearchParams,
+  useNavigation,
 } from "@remix-run/react";
 import { Separator } from "~/components/ui/separator";
 import { authCookie, userIdCookie } from "~/cookies.server";
@@ -157,4 +158,9 @@ export function ErrorBoundary() {
       </div>
     </div>
   );
+}
+
+export function PendingNavigation() {
+  const navigation = useNavigation();
+  return navigation.state === "loading" ? <div className="spinner" /> : null;
 }

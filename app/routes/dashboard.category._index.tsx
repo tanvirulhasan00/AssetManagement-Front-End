@@ -36,11 +36,8 @@ const CategoryDataTable = () => {
   const { data, token } = useLoaderData<typeof loader>();
 
   const handleDelete = async (selectedIds: string[]) => {
-    console.log("d", selectedIds);
     try {
       await DeleteRange(selectedIds, token, "category");
-      location.reload();
-
       location.reload();
     } catch (error: any) {
       toast({

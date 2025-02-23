@@ -6,7 +6,6 @@ import {
   Scripts,
   ScrollRestoration,
   useLoaderData,
-  useNavigate,
   useRouteError,
 } from "@remix-run/react";
 import type { LinksFunction, LoaderFunctionArgs } from "@remix-run/node";
@@ -98,7 +97,6 @@ export default function AppWithProviders() {
 
 export function ErrorBoundary() {
   const error = useRouteError();
-  const navigate = useNavigate();
 
   if (isRouteErrorResponse(error)) {
     return (
