@@ -76,7 +76,7 @@ export function App() {
       </head>
       <body>
         <Outlet />
-        <Toaster />
+        <Toaster position="top-right" />
         <ScrollRestoration />
         <Scripts />
         {/* <LiveReload /> */}

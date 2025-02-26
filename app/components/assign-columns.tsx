@@ -28,16 +28,18 @@ export type Flat = {
   category: Category;
 };
 
-export type Location = {
+export type Assign = {
   id: number;
   referenceNo: string;
   renter: Renter;
   flat: Flat;
   flatPrice: number;
+  flatAdvanceAmountGiven: number;
+  flatAdvanceAmountDue: number;
   active: number;
 };
 
-export const columns: ColumnDef<Location>[] = [
+export const columns: ColumnDef<Assign>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -85,9 +87,41 @@ export const columns: ColumnDef<Location>[] = [
   {
     accessorKey: "flatPrice",
     header: "Flat Price",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("flatPrice")}</div>
-    ),
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("flatPrice"));
+      // formate the amount as a BDT
+      const formatted = new Intl.NumberFormat("en-BD", {
+        style: "currency",
+        currency: "BDT",
+      }).format(amount);
+      return <div className="capitalize">{formatted}</div>;
+    },
+  },
+  {
+    accessorKey: "flatAdvanceAmountGiven",
+    header: "Flat Advance(given)",
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("flatAdvanceAmountGiven"));
+      // formate the amount as a BDT
+      const formatted = new Intl.NumberFormat("en-BD", {
+        style: "currency",
+        currency: "BDT",
+      }).format(amount);
+      return <div className="capitalize">{formatted}</div>;
+    },
+  },
+  {
+    accessorKey: "flatAdvanceAmountDue",
+    header: "Flat Advance Due",
+    cell: ({ row }) => {
+      const amount = parseFloat(row.getValue("flatAdvanceAmountDue"));
+      // formate the amount as a BDT
+      const formatted = new Intl.NumberFormat("en-BD", {
+        style: "currency",
+        currency: "BDT",
+      }).format(amount);
+      return <div className="capitalize">{formatted}</div>;
+    },
   },
 
   {

@@ -96,7 +96,7 @@ const UpdateAssign = ({
     if (statusCode != "200" && error) {
       toast({
         title: "Failed",
-        description: `Create ${error} with status code ${statusCode}`,
+        description: `${error} with status code ${statusCode}`,
         variant: "destructive", // Default toast style
       });
     }

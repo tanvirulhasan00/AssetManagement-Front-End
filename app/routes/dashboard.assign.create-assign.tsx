@@ -37,6 +37,14 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   formPayload.append("renterId", formData.get("renter") as string);
   formPayload.append("flatId", formData.get("flat") as string);
   formPayload.append("flatPrice", formData.get("flatPrice") as string);
+  formPayload.append(
+    "flatAdvanceAmountGiven",
+    formData.get("flatAdvanceAmountGiven") as string
+  );
+  formPayload.append(
+    "flatAdvanceAmountDue",
+    formData.get("flatAdvanceAmountDue") as string
+  );
   formPayload.append("active", formData.get("active") as string);
 
   const cookieHeader = request.headers.get("Cookie");
@@ -107,6 +115,9 @@ const CreateAssign = ({
 
   const [formData, setFormData] = useState({
     flatPrice: "",
+    flatAdvance: "",
+    flatAdvanceDue: 0,
+    flatAdvanceFixed: 0,
   });
 
   const handleValueChange = async (value: string) => {
@@ -115,10 +126,22 @@ const CreateAssign = ({
     setFormData({
       ...formData,
       flatPrice: flat.category.price,
+      flatAdvance: flat.flatAdvanceAmount,
+      flatAdvanceFixed: flat.flatAdvanceAmount,
     });
   };
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, flatPrice: e.target.value });
+    setFormData({
+      ...formData,
+      flatPrice: e.target.value,
+    });
+  };
+  const handleChangeAdvance = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({
+      ...formData,
+      flatAdvance: e.target.value,
+      flatAdvanceDue: formData.flatAdvanceFixed - Number(e.target.value),
+    });
   };
   return (
     <div className={cn("flex flex-col gap-6 ", className)} {...props}>
@@ -169,7 +192,9 @@ const CreateAssign = ({
                       ))
                     ) : (
                       <SelectGroup>
-                        <SelectItem value="no">No Flat</SelectItem>
+                        <SelectItem value="no">
+                          No Empty Flat To Assign
+                        </SelectItem>
                       </SelectGroup>
                     )}
                   </SelectContent>
@@ -184,6 +209,30 @@ const CreateAssign = ({
                   onChange={handleChange}
                   type="number"
                   placeholder="flat price"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="flatAdvanceAmountGiven">Flat Advance</Label>
+                <Input
+                  id="flatAdvanceAmountGiven"
+                  name="flatAdvanceAmountGiven"
+                  value={formData.flatAdvance}
+                  onChange={handleChangeAdvance}
+                  type="number"
+                  placeholder="flat advance"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="flatAdvanceAmountDue">Flat Advance Due</Label>
+                <Input
+                  id="flatAdvanceAmountDue"
+                  name="flatAdvanceAmountDue"
+                  value={formData.flatAdvanceDue}
+                  // onChange={handleChange}
+                  type="number"
+                  placeholder="flat advance due"
                   required
                 />
               </div>
