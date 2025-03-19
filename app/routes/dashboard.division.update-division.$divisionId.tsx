@@ -12,7 +12,7 @@ import {
   useSearchParams,
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { Get, GetDivision, Update, UpdateDivision } from "~/components/data";
+import { Get, Update } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";

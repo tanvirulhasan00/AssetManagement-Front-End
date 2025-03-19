@@ -45,6 +45,25 @@ export const GetUser = async (id: string, authToken: string) => {
   const data = await response.data;
   return data;
 };
+
+export const GetAssign = async (formPayload: FormData, authToken: string) => {
+  // console.log(formPayload);
+  const response = await axios.post(
+    `http://localhost:5233/api/v1/assign/get`,
+    formPayload,
+    {
+      // Pass query parameters here
+      headers: {
+        Accept: "text/plain", // Set header as in curl request
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`, // Include token here
+      },
+    }
+  );
+  const data = await response.data;
+  return data;
+};
+
 export const UserRegistration = async (
   formPayload: FormData,
   authToken: string
@@ -208,5 +227,28 @@ export const DeleteRange = async (
     }
   );
   const data = await response.data;
+  return data; // Directly return response data
+};
+
+export const MakeInAcatived = async (
+  ids: string[], // Change id to an array
+  authToken: string,
+  endPoint: string
+) => {
+  console.log("ids:", ids);
+
+  const response = await axios.post(
+    `http://localhost:5233/api/v1/${endPoint}/make-inactive`,
+    ids, // Pass the array in the body
+    {
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "text/plain",
+        Authorization: `Bearer ${authToken}`,
+      },
+    }
+  );
+  const data = await response.data;
+  console.log("data:", data);
   return data; // Directly return response data
 };

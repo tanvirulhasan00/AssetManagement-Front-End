@@ -7,7 +7,7 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { DeleteRange, GetAll } from "~/components/data";
+import { GetAll, MakeInAcatived } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { Separator } from "~/components/ui/separator";
 import { LoaderFunctionArgs } from "@remix-run/node";
@@ -28,11 +28,25 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 const AssignDataTable = () => {
   const { data, token } = useLoaderData<typeof loader>();
 
-  const handleDelete = async (selectedIds: string[]) => {
+  const handleActiveStatus = async (selectedIds: string[]) => {
     try {
-      await DeleteRange(selectedIds, token, "assign");
-      location.reload();
+      const res = await MakeInAcatived(selectedIds, token, "assign");
+      if (res.success === true) {
+        toast({
+          title: res.statusCode,
+          description: res.message,
+          variant: "default",
+        });
+        location.reload();
+      } else {
+        toast({
+          title: res.statusCode,
+          description: res.message,
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
+      console.log("g", error);
       toast({
         title: error.code,
         description: error.message,
@@ -56,7 +70,13 @@ const AssignDataTable = () => {
         </Button>
       </div>
       <Separator className="mt-4" />
-      <DataTable columns={columns} data={data} onDelete={handleDelete} />
+      <DataTable
+        columns={columns}
+        data={data}
+        onDelete={handleActiveStatus}
+        btnName="InActive"
+        filterWith="referenceNo"
+      />
     </div>
   );
 };

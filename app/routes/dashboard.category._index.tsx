@@ -7,7 +7,7 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { LoaderFunctionArgs, redirect } from "@remix-run/node";
+import { LoaderFunctionArgs } from "@remix-run/node";
 import { DeleteRange, GetAll } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { Separator } from "~/components/ui/separator";
@@ -63,7 +63,13 @@ const CategoryDataTable = () => {
         </Button>
       </div>
       <Separator className="mt-4" />
-      <DataTable columns={columns} data={data} onDelete={handleDelete} />
+      <DataTable
+        columns={columns}
+        data={data}
+        onDelete={handleDelete}
+        btnName="Delete"
+        filterWith="name"
+      />
     </div>
   );
 };

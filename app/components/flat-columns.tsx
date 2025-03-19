@@ -28,9 +28,7 @@ type Flat = {
   floorNo: string;
   totalRoom: number;
   assignedId: number;
-  flatAdvanceAmount: number;
-  prevRentAdvanceAmount: number;
-  prevRentDueAmount: number;
+  flatAdvance: number;
   category: Category;
   house: House;
   active: number;
@@ -94,7 +92,7 @@ export const columns: ColumnDef<Flat>[] = [
   },
   {
     accessorKey: "assignedId",
-    header: "Assigned Id",
+    header: "Assigned Ref",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("assignedId")}</div>
     ),
@@ -113,36 +111,10 @@ export const columns: ColumnDef<Flat>[] = [
     },
   },
   {
-    accessorKey: "flatAdvanceAmount",
+    accessorKey: "flatAdvance",
     header: "Flat Advance",
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("flatAdvanceAmount"));
-      // formate the amount as a BDT
-      const formatted = new Intl.NumberFormat("en-BD", {
-        style: "currency",
-        currency: "BDT",
-      }).format(amount);
-      return <div className="capitalize">{formatted}</div>;
-    },
-  },
-  {
-    accessorKey: "prevRentDuoAmount",
-    header: "Prev Rent Duo",
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("prevRentDuoAmount"));
-      // formate the amount as a BDT
-      const formatted = new Intl.NumberFormat("en-BD", {
-        style: "currency",
-        currency: "BDT",
-      }).format(amount);
-      return <div className="capitalize">{formatted}</div>;
-    },
-  },
-  {
-    accessorKey: "prevRentAdvanceAmount",
-    header: "Prev Rent Advance",
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("prevRentAdvanceAmount"));
+      const amount = parseFloat(row.getValue("flatAdvance"));
       // formate the amount as a BDT
       const formatted = new Intl.NumberFormat("en-BD", {
         style: "currency",

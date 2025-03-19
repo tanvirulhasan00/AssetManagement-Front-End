@@ -13,13 +13,7 @@ import {
 } from "@remix-run/react";
 import { useEffect } from "react";
 
-import {
-  Create,
-  CreateFlat,
-  GetAll,
-  GetAllCategory,
-  GetAllHouse,
-} from "~/components/data";
+import { Create, GetAll } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -53,6 +47,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   formPayload.append("name", formData.get("name") as string);
   formPayload.append("floorNo", formData.get("floorNo") as string);
   formPayload.append("totalRoom", formData.get("totalRoom") as string);
+  formPayload.append("flatAdvance", formData.get("flatAdvance") as string);
   formPayload.append("categoryId", formData.get("categoryId") as string);
   formPayload.append("houseId", formData.get("houseId") as string);
   formPayload.append("active", formData.get("active") as string);
@@ -122,6 +117,7 @@ const FlatHouseFunc = ({
             {/* <Input type="hidden" name="id" /> */}
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
+                <Label htmlFor="totalFloor">House</Label>
                 <Select name="houseId">
                   <SelectTrigger id="houseId">
                     <SelectValue placeholder="Select house name" />
@@ -138,6 +134,7 @@ const FlatHouseFunc = ({
                 </Select>
               </div>
               <div className="grid gap-2">
+                <Label htmlFor="totalFloor">Cetegory</Label>
                 <Select name="categoryId">
                   <SelectTrigger id="categoryId">
                     <SelectValue placeholder="Select category name" />
@@ -180,6 +177,16 @@ const FlatHouseFunc = ({
                   name="totalRoom"
                   type="number"
                   placeholder="total room"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="flatAdvance">Flat Advance</Label>
+                <Input
+                  id="flatAdvance"
+                  name="flatAdvance"
+                  type="number"
+                  placeholder="flat advance"
                   required
                 />
               </div>

@@ -7,7 +7,7 @@ import {
   useLoaderData,
   useRouteError,
 } from "@remix-run/react";
-import { DeleteRange, GetAll, GetAllDivision } from "~/components/data";
+import { DeleteRange, GetAll } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { Separator } from "~/components/ui/separator";
 import { authCookie } from "~/cookies.server";
@@ -55,7 +55,13 @@ const DivisionDataTable = () => {
         </Button>
       </div>
       <Separator className="mt-4" />
-      <DataTable columns={columns} data={data} onDelete={handleDelete} />
+      <DataTable
+        columns={columns}
+        data={data}
+        onDelete={handleDelete}
+        btnName="Delete"
+        filterWith="name"
+      />
     </div>
   );
 };

@@ -11,6 +11,7 @@ import {
   useRouteError,
   useSearchParams,
 } from "@remix-run/react";
+
 import { useEffect, useState } from "react";
 
 import { Create, Get, GetAll } from "~/components/data";
@@ -29,6 +30,7 @@ import {
 import { authCookie } from "~/cookies.server";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
+import SelectRenter from "~/components/select-renter";
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
@@ -36,15 +38,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formPayload = new FormData();
   formPayload.append("renterId", formData.get("renter") as string);
   formPayload.append("flatId", formData.get("flat") as string);
-  formPayload.append("flatPrice", formData.get("flatPrice") as string);
-  formPayload.append(
-    "flatAdvanceAmountGiven",
-    formData.get("flatAdvanceAmountGiven") as string
-  );
-  formPayload.append(
-    "flatAdvanceAmountDue",
-    formData.get("flatAdvanceAmountDue") as string
-  );
+  formPayload.append("flatRent", formData.get("flatRent") as string);
+
   formPayload.append("active", formData.get("active") as string);
 
   const cookieHeader = request.headers.get("Cookie");
@@ -90,7 +85,7 @@ const CreateAssign = ({
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
   const navigate = useNavigate();
-  const { renter, flat, token } = useLoaderData<typeof loader>();
+  const { flat, token } = useLoaderData<typeof loader>();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -99,10 +94,10 @@ const CreateAssign = ({
   const error = searchParams.get("error");
 
   useEffect(() => {
-    if (statusCode != "200" && error) {
+    if (error) {
       toast({
-        title: "Failed",
-        description: `Create ${error} with status code ${statusCode}`,
+        title: `${statusCode}`,
+        description: `${error} `,
         variant: "destructive", // Default toast style
       });
     }
@@ -136,13 +131,9 @@ const CreateAssign = ({
       flatPrice: e.target.value,
     });
   };
-  const handleChangeAdvance = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      flatAdvance: e.target.value,
-      flatAdvanceDue: formData.flatAdvanceFixed - Number(e.target.value),
-    });
-  };
+
+  const [renterId, setRenterId] = useState<string | null>(null);
+
   return (
     <div className={cn("flex flex-col gap-6 ", className)} {...props}>
       <Card className="">
@@ -153,25 +144,13 @@ const CreateAssign = ({
         </CardHeader>
         <CardContent>
           <Form method="post">
-            {/* <Input type="hidden" name="id" /> */}
+            <Input type="hidden" value={renterId?.toString()} name="renter" />
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
                 <Label htmlFor="renter">Renter</Label>
-                <Select name="renter">
-                  <SelectTrigger id="renter">
-                    <SelectValue placeholder="Select renter" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {renter.map((rent: any) => (
-                      <SelectGroup key={rent.id}>
-                        <SelectItem value={rent.id.toString()}>
-                          {rent.name}
-                        </SelectItem>
-                      </SelectGroup>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <SelectRenter onChange={(id) => setRenterId(id)} />
               </div>
+
               <div className="grid gap-2">
                 <Label htmlFor="flat">Flat</Label>
                 <Select
@@ -201,38 +180,14 @@ const CreateAssign = ({
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="flatPrice">Flat Price</Label>
+                <Label htmlFor="flatRent">Flat Rent</Label>
                 <Input
-                  id="flatPrice"
-                  name="flatPrice"
+                  id="flatRent"
+                  name="flatRent"
                   value={formData.flatPrice}
                   onChange={handleChange}
                   type="number"
-                  placeholder="flat price"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="flatAdvanceAmountGiven">Flat Advance</Label>
-                <Input
-                  id="flatAdvanceAmountGiven"
-                  name="flatAdvanceAmountGiven"
-                  value={formData.flatAdvance}
-                  onChange={handleChangeAdvance}
-                  type="number"
-                  placeholder="flat advance"
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="flatAdvanceAmountDue">Flat Advance Due</Label>
-                <Input
-                  id="flatAdvanceAmountDue"
-                  name="flatAdvanceAmountDue"
-                  value={formData.flatAdvanceDue}
-                  // onChange={handleChange}
-                  type="number"
-                  placeholder="flat advance due"
+                  placeholder="flat rent"
                   required
                 />
               </div>

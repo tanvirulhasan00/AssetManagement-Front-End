@@ -24,7 +24,7 @@ export type Division = {
   active: number;
 };
 
-export type Location = {
+export type Area = {
   id: number;
   name: string;
   districtId: number;
@@ -39,7 +39,7 @@ export type Location = {
   updatedDate: string;
 };
 
-export const columns: ColumnDef<Location>[] = [
+export const columns: ColumnDef<Area>[] = [
   {
     id: "select",
     header: ({ table }) => (

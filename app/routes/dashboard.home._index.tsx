@@ -31,11 +31,17 @@ const Home = () => {
           </CardHeader>
           <CardContent>
             Total Houses:
-            <span className="text-orange-500"> {houses.result.length}</span>
+            <span className="text-orange-500 text-lg">
+              {" "}
+              {houses.result.length}
+            </span>
           </CardContent>
           <CardContent>
             Total Flats:
-            <span className="text-orange-500"> {flats.result.length}</span>
+            <span className="text-orange-500 text-lg">
+              {" "}
+              {flats.result.length}
+            </span>
           </CardContent>
           <CardContent>
             Empty Flats:
@@ -48,7 +54,10 @@ const Home = () => {
           </CardHeader>
           <CardContent>
             Total Renters:
-            <span className="text-orange-500"> {renters.result.length}</span>
+            <span className="text-orange-500 text-lg">
+              {" "}
+              {renters.result.length}
+            </span>
           </CardContent>
         </Card>
         <Card className="w-full h-[13rem]">
@@ -58,19 +67,31 @@ const Home = () => {
             </CardHeader>
             <CardContent>
               Total Rent Amounts:
-              <span className="text-orange-500"> {renters.result.length}</span>
+              <span className="text-orange-500 text-lg">
+                {" "}
+                {renters.result.length}
+              </span>
             </CardContent>
             <CardContent>
               Total Collectable Rent Amounts:
-              <span className="text-orange-500"> {renters.result.length}</span>
+              <span className="text-orange-500 text-lg">
+                {" "}
+                {renters.result.length}
+              </span>
             </CardContent>
             <CardContent>
               Total Collected Rent Amounts:
-              <span className="text-orange-500"> {renters.result.length}</span>
+              <span className="text-orange-500 text-lg">
+                {" "}
+                {renters.result.length}
+              </span>
             </CardContent>
             <CardContent>
               Total Due Rent Amounts:
-              <span className="text-orange-500"> {renters.result.length}</span>
+              <span className="text-orange-500 text-lg">
+                {" "}
+                {renters.result.length}
+              </span>
             </CardContent>
           </ScrollArea>
         </Card>

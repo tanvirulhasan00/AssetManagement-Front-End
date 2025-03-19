@@ -13,7 +13,7 @@ import { MoreHorizontal } from "lucide-react";
 export type History = {
   id: number;
   actionName: string;
-  actionBy: string;
+  actionById: string;
   actionByName: string;
   actionDate: string;
 };
@@ -49,10 +49,10 @@ export const columns: ColumnDef<History>[] = [
     ),
   },
   {
-    accessorKey: "actionBy",
+    accessorKey: "actionById",
     header: "Action By",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("actionBy")}</div>
+      <div className="capitalize">{row.getValue("actionById")}</div>
     ),
   },
   {

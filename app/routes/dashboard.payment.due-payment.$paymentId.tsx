@@ -11,9 +11,9 @@ import {
   useRouteError,
   useSearchParams,
 } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { Get, GetAll, Update } from "~/components/data";
+import { Create, Get, GetAll, Update } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -26,65 +26,64 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { authCookie } from "~/cookies.server";
+import { authCookie, userIdCookie } from "~/cookies.server";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
 
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const { paymentId } = params;
+  const cookieHeader = request.headers.get("Cookie");
+  const token = (await authCookie.parse(cookieHeader)) || null;
+  const userId = (await userIdCookie.parse(cookieHeader)) || null;
+  const response = await Get(Number(paymentId), token, "payment");
+  const payments = response.result;
+  return { payments, userId };
+};
+
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
-  const assignId = formData.get("id") as string;
 
   const formPayload = new FormData();
-  formPayload.append("id", assignId);
-  formPayload.append("renterId", formData.get("renter") as string);
-  formPayload.append("flatId", formData.get("flat") as string);
-  formPayload.append("flatRent", formData.get("flatRent") as string);
-  formPayload.append("active", formData.get("active") as string);
+  formPayload.append("userId", formData.get("userId") as string);
+  formPayload.append("paymentMethod", formData.get("paymentMethod") as string);
+  formPayload.append("paymentAmount", formData.get("paymentAmount") as string);
+  formPayload.append(
+    "paymentDueAmount",
+    formData.get("paymentDueAmount") as string
+  );
+
+  formPayload.append("paymentStatus", formData.get("paymentStatus") as string);
 
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await Update(formPayload, token, "assign");
+    const response = await Update(formPayload, token, "payment");
 
     if (response.success) {
       return redirect(
-        `/dashboard/assign?message=${response.message}&status=${response.statusCode}`
+        `/dashboard/payment?message=${response.message}&status=${response.statusCode}`
       );
     } else {
       return redirect(
-        `/dashboard/assign/update-assign/${assignId}?error=${response.message}&status=${response.statusCode}`
+        `/dashboard/payment/create-payment?error=${response.message}&status=${response.statusCode}`
       );
     }
   } catch (error: any) {
     return redirect(
-      `/dashboard/assign/update-assign/${assignId}?error=${encodeURIComponent(
+      `/dashboard/payment/create-payment?error=${encodeURIComponent(
         error.message
       )}&status=${error.code}`
     );
   }
 };
 
-export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { assignId } = params;
-  const cookieHeader = request.headers.get("Cookie");
-  const token = (await authCookie.parse(cookieHeader)) || null;
-  const assignRes = await Get(Number(assignId), token, "assign");
-  const renterRes = await GetAll(token, "renter");
-  const flatRes = await GetAll(token, "flat");
-  const renter = renterRes.result;
-  const flat = flatRes.result;
-  const assign = assignRes.result;
-
-  return { renter, flat, assign, token };
-};
-
-const UpdateAssign = ({
+const CreateHouseFunc = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
+  const { payments, userId } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const { renter, flat, assign, token } = useLoaderData<typeof loader>();
 
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -93,10 +92,10 @@ const UpdateAssign = ({
   const error = searchParams.get("error");
 
   useEffect(() => {
-    if (statusCode != "200" && error) {
+    if (error) {
       toast({
-        title: "Failed",
-        description: `${error} with status code ${statusCode}`,
+        title: `Failed status code ${statusCode}`,
+        description: `${error}`,
         variant: "destructive", // Default toast style
       });
     }
@@ -108,114 +107,120 @@ const UpdateAssign = ({
   }, [statusCode, message, error, setSearchParams]);
 
   const [formData, setFormData] = useState({
-    renterId: assign.renterId,
-    flatId: assign.flatId,
-    flatPrice: assign.flatPrice,
-    active: assign.active,
+    renterName: payments.renter.name,
   });
 
-  const handleValueChange = async (value: string) => {
-    const singleFlat = await Get(Number(value), token, "flat");
-    const flat = singleFlat.result;
-    setFormData({
-      ...formData,
-      flatId: value,
-      flatPrice: flat.category.price,
-    });
-  };
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
   return (
     <div className={cn("flex flex-col gap-6 ", className)} {...props}>
       <Card className="">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-2xl">Create Area</CardTitle>
+            <CardTitle className="text-2xl">Create Payment</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <Form method="post">
-            <Input type="hidden" name="id" value={assign.id} />
+            <Input type="hidden" name="userId" id="userId" value={userId} />
+            <Input
+              type="hidden"
+              name="paymentId"
+              id="paymentId"
+              value={payments.id}
+            />
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Label htmlFor="renter">Renter</Label>
-                <Select
-                  name="renter"
-                  value={formData.renterId.toString()}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, renterId: value })
-                  }
-                >
-                  <SelectTrigger id="renter">
+                <Label htmlFor="renter">Renter Name</Label>
+                <Select name="renterId" value={payments.renterId}>
+                  <SelectTrigger id="renterId">
                     <SelectValue placeholder="Select renter" />
                   </SelectTrigger>
                   <SelectContent>
-                    {renter.map((rent: any) => (
-                      <SelectGroup key={rent.id}>
-                        <SelectItem value={rent.id.toString()}>
-                          {rent.name}
-                        </SelectItem>
-                      </SelectGroup>
-                    ))}
+                    <SelectGroup>
+                      <SelectItem value={payments.renterId}>
+                        {payments.renter.name}
+                      </SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="flat">Flat</Label>
-                <Select
-                  name="flat"
-                  value={formData.flatId.toString()}
-                  onValueChange={handleValueChange}
-                >
-                  <SelectTrigger id="flat">
-                    <SelectValue placeholder="Select flat" />
+                <Label htmlFor="transactionId">Transaction Number</Label>
+                <Input
+                  id="transactionId"
+                  name="transactionId"
+                  type="text"
+                  value={payments.transactionId}
+                  placeholder="transaction number"
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="paymentAmount">Payment Method</Label>
+                <Select name="paymentMethod" value={payments.paymentMethod}>
+                  <SelectTrigger id="paymentMethod">
+                    <SelectValue placeholder="Select payment method" />
                   </SelectTrigger>
                   <SelectContent>
-                    {flat.map((fla: any) => (
-                      <SelectGroup key={fla.id}>
-                        <SelectItem value={fla.id.toString()}>
-                          {fla.name}
-                        </SelectItem>
-                      </SelectGroup>
-                    ))}
+                    <SelectGroup>
+                      <SelectItem value={"cash"}>Cash</SelectItem>
+                      <SelectItem value={"bank"}>Bank</SelectItem>
+                      <SelectItem value={"bkash"}>Bkash</SelectItem>
+                      <SelectItem value={"nagad"}>Nagad</SelectItem>
+                      <SelectItem value={"rocket"}>Rocket</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="flatPrice">Flat Price</Label>
+                <Label htmlFor="paymentAmount">Payment Amount Given</Label>
                 <Input
-                  id="flatPrice"
-                  name="flatPrice"
-                  value={formData.flatPrice}
-                  onChange={handleChange}
+                  id="paymentAmount"
+                  name="paymentAmount"
                   type="number"
-                  placeholder="flat price"
+                  placeholder="payment amount"
+                  value={payments.paymentAmount}
                   required
                 />
               </div>
               <div className="grid gap-2">
-                <Select
-                  name="active"
-                  value={formData.active.toString()}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, active: value })
-                  }
-                >
-                  <SelectTrigger id="active">
-                    <SelectValue placeholder="Select active status" />
+                <Label htmlFor="paymentDueAmount1">Payment Due Amount</Label>
+                <Input
+                  id="paymentDueAmount1"
+                  name="paymentDueAmount1"
+                  type="number"
+                  value={payments.paymentDue}
+                  placeholder="due amount"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="paymentDueAmount">
+                  Enter Due Amount To Pay
+                </Label>
+                <Input
+                  id="paymentDueAmount"
+                  name="paymentDueAmount"
+                  type="number"
+                  value={payments.paymentDueAmount}
+                  placeholder="pay due amount"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="status">Payment Status</Label>
+                <Select name="paymentStatus" value={payments.paymentStatus}>
+                  <SelectTrigger id="paymentStatus">
+                    <SelectValue placeholder="Select payment status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value={"1"}>Active</SelectItem>
-                      <SelectItem value={"0"}>InActive</SelectItem>
+                      <SelectItem value={"paid"}>Paid</SelectItem>
+                      <SelectItem value={"due"}>Due</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
 
               <Button type="submit" className="w-full">
-                Update
+                Pay Due
               </Button>
               <Button
                 variant={"destructive"}
@@ -223,10 +228,9 @@ const UpdateAssign = ({
                 onClick={() => {
                   toast({
                     variant: "destructive",
-                    title: "Update cancelled",
+                    title: "Payment cancelled",
                   });
-                  // navigate(-1);
-                  navigate("/dashboard/assign");
+                  navigate("/dashboard/payment");
                 }}
                 className="w-full"
               >
@@ -240,7 +244,7 @@ const UpdateAssign = ({
   );
 };
 
-export default UpdateAssign;
+export default CreateHouseFunc;
 
 export function ErrorBoundary() {
   const error = useRouteError();
@@ -287,10 +291,10 @@ export function ErrorBoundary() {
           </p>
         )}
         <a
-          href="/dashboard/assign"
+          href="/"
           className="mt-4 inline-block rounded bg-red-600 px-4 py-2 text-white hover:bg-red-700"
         >
-          Go Back
+          Go Home
         </a>
       </div>
     </div>

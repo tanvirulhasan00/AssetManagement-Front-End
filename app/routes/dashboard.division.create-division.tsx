@@ -8,7 +8,7 @@ import {
 } from "@remix-run/react";
 import { useEffect } from "react";
 
-import { Create, CreateDivision } from "~/components/data";
+import { Create } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";

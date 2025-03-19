@@ -33,9 +33,9 @@ export type Assign = {
   referenceNo: string;
   renter: Renter;
   flat: Flat;
-  flatPrice: number;
-  flatAdvanceAmountGiven: number;
-  flatAdvanceAmountDue: number;
+  flatRent: number;
+  dueRent: number;
+  advanceRent: number;
   active: number;
 };
 
@@ -85,10 +85,10 @@ export const columns: ColumnDef<Assign>[] = [
   },
 
   {
-    accessorKey: "flatPrice",
+    accessorKey: "flatRent",
     header: "Flat Price",
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("flatPrice"));
+      const amount = parseFloat(row.getValue("flatRent"));
       // formate the amount as a BDT
       const formatted = new Intl.NumberFormat("en-BD", {
         style: "currency",
@@ -98,10 +98,10 @@ export const columns: ColumnDef<Assign>[] = [
     },
   },
   {
-    accessorKey: "flatAdvanceAmountGiven",
-    header: "Flat Advance(given)",
+    accessorKey: "dueRent",
+    header: "Due Rent",
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("flatAdvanceAmountGiven"));
+      const amount = parseFloat(row.getValue("dueRent"));
       // formate the amount as a BDT
       const formatted = new Intl.NumberFormat("en-BD", {
         style: "currency",
@@ -111,10 +111,10 @@ export const columns: ColumnDef<Assign>[] = [
     },
   },
   {
-    accessorKey: "flatAdvanceAmountDue",
-    header: "Flat Advance Due",
+    accessorKey: "advanceRent",
+    header: "Advance Rent",
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("flatAdvanceAmountDue"));
+      const amount = parseFloat(row.getValue("advanceRent"));
       // formate the amount as a BDT
       const formatted = new Intl.NumberFormat("en-BD", {
         style: "currency",
@@ -123,7 +123,6 @@ export const columns: ColumnDef<Assign>[] = [
       return <div className="capitalize">{formatted}</div>;
     },
   },
-
   {
     accessorKey: "active",
     header: "Status",
@@ -160,6 +159,12 @@ export const columns: ColumnDef<Assign>[] = [
             <DropdownMenuItem>
               <Link to={`/dashboard/assign/update-assign/${assign.id}`}>
                 Update Assign Data
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Link to={`/dashboard/assign/view-assign/${assign.id}`}>
+                View Assign Data
               </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>

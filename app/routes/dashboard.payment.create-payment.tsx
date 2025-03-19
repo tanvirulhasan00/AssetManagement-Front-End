@@ -11,9 +11,10 @@ import {
   useRouteError,
   useSearchParams,
 } from "@remix-run/react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Create, GetAll } from "~/components/data";
+import SearchReference from "~/components/search-ref";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -35,8 +36,10 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
   const userId = (await userIdCookie.parse(cookieHeader)) || null;
   const response = await GetAll(token, "renter");
+  const responseA = await GetAll(token, "assign");
   const renters = response.result;
-  return { renters, userId };
+  const assigns = responseA.result;
+  return { renters, assigns, userId };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
@@ -44,21 +47,28 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
   const formPayload = new FormData();
   formPayload.append("userId", formData.get("userId") as string);
-  formPayload.append("renterId", formData.get("renterId") as string);
+  formPayload.append("assignId", formData.get("id") as string);
+  formPayload.append("referenceNo", formData.get("ref") as string);
   formPayload.append("transactionId", formData.get("transactionId") as string);
   formPayload.append("paymentMethod", formData.get("paymentMethod") as string);
+  formPayload.append("paymentType", formData.get("paymentType") as string);
   formPayload.append("paymentAmount", formData.get("paymentAmount") as string);
-  formPayload.append(
-    "paymentDueAmount",
-    formData.get("paymentDueAmount") as string
-  );
+  formPayload.append("flatUtilities", formData.get("flatUtilities") as string);
+  formPayload.append("paymentDue", formData.get("paymentDue") as string);
 
+  formPayload.append(
+    "paymentAdvance",
+    formData.get("paymentAdvance") as string
+  );
+  formPayload.append("paymentMonth", formData.get("paymentMonth") as string);
+  formPayload.append("paymentYear", formData.get("paymentYear") as string);
   formPayload.append("paymentStatus", formData.get("paymentStatus") as string);
 
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
+    console.log("f", formPayload);
     const response = await Create(formPayload, token, "payment");
 
     if (response.success) {
@@ -83,18 +93,26 @@ const CreateHouseFunc = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
-  const { renters, userId } = useLoaderData<typeof loader>();
+  const { assigns, userId } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+  const [ref, setRef] = useState<string | null>(null);
+  const [assignData, setAssignData] = useState<typeof assigns>();
 
   const [searchParams, setSearchParams] = useSearchParams();
+
+  useEffect(() => {
+    const a = assigns.find((f: any) => f.referenceNo === ref);
+    setAssignData(a);
+  }, [assigns, ref]);
+
+  // console.log(assignData?.length);
 
   const message = searchParams.get("message");
   const statusCode = searchParams.get("status");
   const error = searchParams.get("error");
 
   useEffect(() => {
+    console.log(error);
     if (error) {
       toast({
         title: `Failed status code ${statusCode}`,
@@ -120,26 +138,82 @@ const CreateHouseFunc = ({
         <CardContent>
           <Form method="post">
             <Input type="hidden" name="userId" id="userId" value={userId} />
+            <Input type="hidden" value={ref?.toString()} name="ref" />
+            <Input type="hidden" value={assignData?.id.toString()} name="id" />
             <div className="flex flex-col gap-6">
               <div className="grid gap-2">
-                <Select name="renterId">
-                  <SelectTrigger id="renterId">
-                    <SelectValue placeholder="Select renter" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {renters.map((renter: any) => (
-                      <SelectGroup key={renter.id}>
-                        <SelectItem value={renter.id.toString()}>
-                          {renter.name}
-                        </SelectItem>
-                      </SelectGroup>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="renter">Search Reference</Label>
+                <SearchReference onChange={(reff: any) => setRef(reff)} />
               </div>
-              <div className="grid gap-2"></div>
+
+              <div hidden={!assignData ? true : false}>
+                <div className="grid gap-2">
+                  <Label htmlFor="renter">Renter Information</Label>
+                  <div className="grid grid-cols-3 gap-4">
+                    <Input
+                      value={`Assign ID- ${
+                        assignData && assignData.id.toString().length
+                          ? assignData.id.toString()
+                          : ""
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`Name- ${
+                        assignData && assignData?.renter.name.length
+                          ? assignData?.renter.name
+                          : ""
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`Mobile- ${
+                        assignData && assignData?.renter?.phoneNumber?.length
+                          ? assignData?.renter.phoneNumber
+                          : ""
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`FlatNumber- ${
+                        assignData && assignData?.flat.name.length
+                          ? assignData?.flat.name
+                          : ""
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`FlatRent- ${
+                        assignData && assignData?.flatRent.toString().length
+                          ? assignData?.flatRent
+                          : ""
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`DueRent- ${
+                        assignData && assignData?.dueRent?.toString().length
+                          ? assignData?.dueRent
+                          : ""
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`AdvanceRent- ${
+                        assignData && assignData?.advanceRent.toString().length
+                          ? assignData?.advanceRent
+                          : ""
+                      }`}
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="grid gap-2">
-                <Label htmlFor="transactionId">Transaction Number</Label>
+                <Label htmlFor="transactionId">
+                  Transaction Number (Optional)
+                </Label>
                 <Input
                   id="transactionId"
                   name="transactionId"
@@ -149,6 +223,7 @@ const CreateHouseFunc = ({
               </div>
 
               <div className="grid gap-2">
+                <Label htmlFor="renter">Payment Method</Label>
                 <Select name="paymentMethod">
                   <SelectTrigger id="paymentMethod">
                     <SelectValue placeholder="Select payment method" />
@@ -164,27 +239,102 @@ const CreateHouseFunc = ({
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="paymentType">Payment Type</Label>
+                <Select name="paymentType">
+                  <SelectTrigger id="paymentType">
+                    <SelectValue placeholder="Select payment type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value={"rent"}>Rent</SelectItem>
+                      <SelectItem value={"duerent"}>Due Rent</SelectItem>
+                      <SelectItem value={"flatadvance"}>
+                        Flat Advance
+                      </SelectItem>
+                      <SelectItem value={"dueflatadvance"}>
+                        Due Flat Advance
+                      </SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="grid gap-2">
                 <Label htmlFor="paymentAmount">Payment Amount</Label>
                 <Input
                   id="paymentAmount"
                   name="paymentAmount"
-                  type="number"
+                  type="text"
                   placeholder="payment amount"
                   required
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="paymentDueAmount">Payment Due Amount</Label>
+                <Label htmlFor="flatUtilities">Flat Utilities</Label>
                 <Input
-                  id="paymentDueAmount"
-                  name="paymentDueAmount"
-                  type="number"
+                  id="flatUtilities"
+                  name="flatUtilities"
+                  type="text"
+                  placeholder="flat utilities"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="paymentDue">Payment Due Amount</Label>
+                <Input
+                  id="paymentDue"
+                  name="paymentDue"
+                  type="text"
                   placeholder="payment due amount"
                   defaultValue={0}
                 />
               </div>
               <div className="grid gap-2">
+                <Label htmlFor="paymentAdvance">Payment Advance Amount</Label>
+                <Input
+                  id="paymentAdvance"
+                  name="paymentAdvance"
+                  type="text"
+                  placeholder="payment advance amount"
+                  defaultValue={0}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="renter">Payment Month</Label>
+                <Select name="paymentMonth">
+                  <SelectTrigger id="paymentMonth">
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      <SelectItem value={"January"}>January</SelectItem>
+                      <SelectItem value={"February"}>February</SelectItem>
+                      <SelectItem value={"March"}>March</SelectItem>
+                      <SelectItem value={"April"}>April</SelectItem>
+                      <SelectItem value={"May"}>May</SelectItem>
+                      <SelectItem value={"June"}>June</SelectItem>
+                      <SelectItem value={"July"}>July</SelectItem>
+                      <SelectItem value={"August"}>August</SelectItem>
+                      <SelectItem value={"September"}>September</SelectItem>
+                      <SelectItem value={"October"}>October</SelectItem>
+                      <SelectItem value={"November"}>November</SelectItem>
+                      <SelectItem value={"December"}>December</SelectItem>
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="paymentYear">Payment Year</Label>
+                <Input
+                  id="paymentYear"
+                  name="paymentYear"
+                  type="text"
+                  placeholder="payment year"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="status">Payment Status</Label>
                 <Select name="paymentStatus">
                   <SelectTrigger id="paymentStatus">
                     <SelectValue placeholder="Select payment status" />
@@ -199,7 +349,7 @@ const CreateHouseFunc = ({
               </div>
 
               <Button type="submit" className="w-full">
-                Create
+                Pay
               </Button>
               <Button
                 variant={"destructive"}

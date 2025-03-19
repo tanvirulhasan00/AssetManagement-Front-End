@@ -125,6 +125,7 @@ const CreateHouseFunc = ({
                 />
               </div>
               <div className="grid gap-2">
+                <Label htmlFor="totalFloor">Area</Label>
                 <Select name="areaId">
                   <SelectTrigger id="areaId">
                     <SelectValue placeholder="Select area name" />

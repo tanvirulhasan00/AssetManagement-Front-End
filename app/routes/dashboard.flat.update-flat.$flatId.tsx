@@ -13,16 +13,7 @@ import {
 } from "@remix-run/react";
 import { useEffect, useState } from "react";
 
-import {
-  CreateFlat,
-  Get,
-  GetAll,
-  GetAllCategory,
-  GetAllHouse,
-  GetFlat,
-  Update,
-  UpdateFlat,
-} from "~/components/data";
+import { Get, GetAll, Update } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -58,10 +49,11 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const formPayload = new FormData();
   formPayload.append("id", flatId);
   formPayload.append("name", formData.get("name") as string);
-  formPayload.append("floorNo", formData.get("floorNo") as string);
+  // formPayload.append("floorNo", formData.get("floorNo") as string);
   formPayload.append("totalRoom", formData.get("totalRoom") as string);
+  formPayload.append("flatAdvance", formData.get("flatAdvance") as string);
   formPayload.append("categoryId", formData.get("categoryId") as string);
-  formPayload.append("houseId", formData.get("houseId") as string);
+  // formPayload.append("houseId", formData.get("houseId") as string);
   formPayload.append("active", formData.get("active") as string);
 
   const cookieHeader = request.headers.get("Cookie");
@@ -118,9 +110,10 @@ const FlatHouseFunc = ({
 
   const [formData, setFormData] = useState({
     name: flat.name || "",
-    floorNo: flat.floorNo,
+    // floorNo: flat.floorNo,
     totalRoom: flat.totalRoom,
-    houseId: flat.house.id,
+    flatAdvance: flat.flatAdvance,
+    // houseId: flat.house.id,
     categoryId: flat.category.id,
     active: flat.active,
   });
@@ -141,7 +134,7 @@ const FlatHouseFunc = ({
           <Form method="post">
             <Input type="hidden" name="id" id="id" value={flat.id} />
             <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
+              {/* <div className="grid gap-2">
                 <Select
                   name="houseId"
                   value={formData.houseId.toString()}
@@ -162,7 +155,7 @@ const FlatHouseFunc = ({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
               <div className="grid gap-2">
                 <Select
                   name="categoryId"
@@ -197,7 +190,7 @@ const FlatHouseFunc = ({
                   required
                 />
               </div>
-              <div className="grid gap-2">
+              {/* <div className="grid gap-2">
                 <Label htmlFor="floorNo">Floor no</Label>
                 <Input
                   id="floorNo"
@@ -208,7 +201,7 @@ const FlatHouseFunc = ({
                   placeholder="floor no"
                   required
                 />
-              </div>
+              </div> */}
               <div className="grid gap-2">
                 <Label htmlFor="totalRoom">Total Room</Label>
                 <Input
@@ -218,6 +211,18 @@ const FlatHouseFunc = ({
                   onChange={handleChange}
                   type="number"
                   placeholder="total room"
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="flatAdvance">Flat Advance</Label>
+                <Input
+                  id="flatAdvance"
+                  name="flatAdvance"
+                  value={formData.flatAdvance}
+                  onChange={handleChange}
+                  type="number"
+                  placeholder="flat advance"
                   required
                 />
               </div>

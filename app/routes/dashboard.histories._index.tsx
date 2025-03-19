@@ -37,7 +37,13 @@ const HistoryDataTable = () => {
         <h1>History</h1>
       </div>
       <Separator className="mt-4" />
-      <DataTable columns={columns} data={data} onDelete={handleDelete} />
+      <DataTable
+        columns={columns}
+        data={data}
+        onDelete={handleDelete}
+        btnName="Delete"
+        filterWith="actionName"
+      />
     </div>
   );
 };

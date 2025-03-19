@@ -20,6 +20,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
   const response = await GetAll(token, "payment");
   const data = await response.result;
+  console.log("p", data);
   return { data };
 };
 
@@ -47,7 +48,13 @@ const PaymentDataTable = () => {
         </Button>
       </div>
       <Separator className="mt-4" />
-      <DataTable columns={columns} data={data} onDelete={handleDelete} />
+      <DataTable
+        columns={columns}
+        data={data}
+        onDelete={handleDelete}
+        btnName="Delete"
+        filterWith="referenceNo"
+      />
     </div>
   );
 };

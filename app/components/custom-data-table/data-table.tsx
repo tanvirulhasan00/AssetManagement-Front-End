@@ -39,12 +39,16 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   onDelete: (ids: string[]) => void;
+  filterWith: string;
+  btnName: string;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
   onDelete,
+  filterWith,
+  btnName,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -98,7 +102,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <DataTableViewOptions table={table} filterWith="name" />
+      <DataTableViewOptions table={table} filterWith={filterWith} />
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -155,7 +159,7 @@ export function DataTable<TData, TValue>({
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="destructive">
-              Delete {getSelectedRowIds().length}{" "}
+              {btnName} {getSelectedRowIds().length}{" "}
               {getSelectedRowIds().length > 1 ? "items" : "item"}
             </Button>
           </DialogTrigger>
@@ -166,14 +170,14 @@ export function DataTable<TData, TValue>({
                 Are you sure!
               </DialogTitle>
               <DialogDescription>
-                {getSelectedRowIds().length > 1 ? "Items" : "Item"} will delete
-                permanently.
+                {getSelectedRowIds().length > 1 ? "Items" : "Item"} will{" "}
+                {btnName.toLowerCase()} permanently.
               </DialogDescription>
             </DialogHeader>
 
             <DialogFooter>
               <Button variant="destructive" onClick={handleDelete}>
-                Delete {getSelectedRowIds().length}{" "}
+                {btnName} {getSelectedRowIds().length}{" "}
                 {getSelectedRowIds().length > 1 ? "items" : "item"}
               </Button>
             </DialogFooter>

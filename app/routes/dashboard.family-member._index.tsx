@@ -55,7 +55,13 @@ const FamilyMemberDataTable = () => {
         </Button>
       </div>
       <Separator className="mt-4" />
-      <DataTable columns={columns} data={data} onDelete={handleDelete} />
+      <DataTable
+        columns={columns}
+        data={data}
+        onDelete={handleDelete}
+        btnName="Delete"
+        filterWith="name"
+      />
     </div>
   );
 };

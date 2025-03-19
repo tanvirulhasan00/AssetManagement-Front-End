@@ -28,8 +28,21 @@ const Renter = () => {
 
   const handleDelete = async (selectedIds: string[]) => {
     try {
-      await DeleteRange(selectedIds, token, "renter");
-      location.reload();
+      const res = await DeleteRange(selectedIds, token, "renter");
+      if (res.success === true) {
+        toast({
+          title: res.statusCode,
+          description: res.message,
+          variant: "default",
+        });
+        location.reload();
+      } else {
+        toast({
+          title: res.statusCode,
+          description: res.message,
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       toast({
         title: error.code,
@@ -53,7 +66,12 @@ const Renter = () => {
         </Button>
       </div>
       <Separator className="mt-4" />
-      <DataTable columns={columns} data={data} onDelete={handleDelete} />
+      <DataTable
+        columns={columns}
+        data={data}
+        onDelete={handleDelete}
+        filterWith="name"
+      />
     </div>
   );
 };

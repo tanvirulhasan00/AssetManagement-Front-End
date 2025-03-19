@@ -5,26 +5,32 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { MoreHorizontal } from "lucide-react";
+import { Link } from "@remix-run/react";
 
-type Renter = {
+type Assign = {
   id: number;
-  name: string;
+  referenceNo: string;
 };
 
 export type Payment = {
   id: number;
-  renter: Renter;
+  referenceNo: Assign;
   transactionId: string;
   invoiceId: string;
   paymentMethod: string;
+  paymentType: string;
   paymentAmount: string;
-  paymentDueAmount: string;
+  flatUtilities: string;
+  paymentDue: string;
+  paymentAdvance: string;
+  paymentMonth: string;
+  paymentYear: string;
   paymentDate: string;
-  lastUpdatedDate: string;
   paymentStatus: string;
 };
 
@@ -52,10 +58,10 @@ export const columns: ColumnDef<Payment>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "renter",
-    header: "Renter Name",
+    accessorKey: "referenceNo",
+    header: "Reference Number",
     cell: ({ row }) => (
-      <div className="capitalize">{row.original.renter.name}</div>
+      <div className="capitalize">{row.getValue("referenceNo")}</div>
     ),
   },
   {
@@ -80,6 +86,18 @@ export const columns: ColumnDef<Payment>[] = [
     ),
   },
   {
+    accessorKey: "paymentType",
+    header: "Payment Type",
+    cell: ({ row }) => (
+      <div className="capitalize">{`${
+        row.original.paymentType
+      } - ${row.original.paymentMonth.slice(
+        0,
+        3
+      )}${row.original.paymentYear.slice(2, 4)}`}</div>
+    ),
+  },
+  {
     accessorKey: "paymentAmount",
     header: "Payment Amount",
     cell: ({ row }) => (
@@ -87,10 +105,24 @@ export const columns: ColumnDef<Payment>[] = [
     ),
   },
   {
-    accessorKey: "paymentDueAmount",
-    header: "Payment Due Amount",
+    accessorKey: "flatUtilities",
+    header: "Flat Utilities",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("paymentDueAmount")}</div>
+      <div className="capitalize">{row.getValue("flatUtilities")}</div>
+    ),
+  },
+  {
+    accessorKey: "paymentDue",
+    header: "Payment Due",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("paymentDue")}</div>
+    ),
+  },
+  {
+    accessorKey: "paymentAdvance",
+    header: "Payment Advance",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("paymentAdvance")}</div>
     ),
   },
   {
@@ -100,13 +132,7 @@ export const columns: ColumnDef<Payment>[] = [
       <div className="capitalize">{row.getValue("paymentDate")}</div>
     ),
   },
-  {
-    accessorKey: "lastUpdatedDate",
-    header: "Last Updated Date",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("lastUpdatedDate")}</div>
-    ),
-  },
+
   {
     accessorKey: "paymentStatus",
     header: "Payment Status",
@@ -136,6 +162,12 @@ export const columns: ColumnDef<Payment>[] = [
               }
             >
               Copy Payment ID
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem>
+              <Link to={`/dashboard/payment/due-payment/${payment.id}`}>
+                Due Payment
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
