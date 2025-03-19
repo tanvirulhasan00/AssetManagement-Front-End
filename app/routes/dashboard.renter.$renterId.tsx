@@ -64,7 +64,7 @@ const RenterProfile = () => {
   return (
     <div className="min-h-screen flex flex-col items-center">
       {/* Cover Photo */}
-      <div className="w-full h-72 bg-gradient-to-r from-indigo-500 to-purple-600 relative">
+      <div className="w-full h-72 bg-linear-to-r from-indigo-500 to-purple-600 relative">
         <img
           src={renter.imageUrl}
           alt="renter-image"

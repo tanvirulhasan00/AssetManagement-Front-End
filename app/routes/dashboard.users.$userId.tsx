@@ -70,7 +70,7 @@ const UserProfile = () => {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 flex flex-col items-center">
       {/* Cover Photo */}
-      <div className="w-full h-72 bg-gradient-to-r from-indigo-500 to-purple-600 relative">
+      <div className="w-full h-72 bg-linear-to-r from-indigo-500 to-purple-600 relative">
         <img
           src={user.profilePicUrl}
           alt="Profile"

@@ -1,13 +1,18 @@
 import { Landmark } from "lucide-react";
 
 import LoginForm from "./login-form";
-import { Link, useSearchParams } from "react-router";
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "react-router";
+import {
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+  useSearchParams,
+  Link,
+} from "react-router";
 import { authCookie, userIdCookie } from "~/cookies.server";
-import { ModeToggle } from "~/components/mode-toggle";
 import { Login } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { useEffect } from "react";
+import ThemeToggle from "~/mode-toggle";
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
@@ -79,7 +84,7 @@ const LoginPage = () => {
             </div>
             Asset Management
           </Link>
-          <ModeToggle />
+          <ThemeToggle />
         </div>
         <div className="flex flex-1 items-center justify-center">
           <div className="w-full max-w-xs">

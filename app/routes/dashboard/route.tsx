@@ -1,4 +1,3 @@
-import { ModeToggle } from "~/components/mode-toggle";
 import {
   SidebarInset,
   SidebarProvider,
@@ -12,14 +11,15 @@ import {
   useRouteError,
   useSearchParams,
   useNavigation,
+  LoaderFunctionArgs,
 } from "react-router";
 import { Separator } from "~/components/ui/separator";
 import { authCookie, userIdCookie } from "~/cookies.server";
 import { useEffect, useState } from "react";
-import { LoaderFunctionArgs } from "react-router";
 import { Toaster } from "~/components/ui/toaster";
 import { toast } from "~/hooks/use-toast";
 import { GetUser, UserRole } from "~/components/data";
+import ThemeToggle from "~/mode-toggle";
 
 export const action = async () => {
   return redirect("/", {
@@ -87,10 +87,13 @@ const DashboardLayout = () => {
     <SidebarProvider>
       <AppSidebar openB={isSidebarOpen} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex w-full items-center px-6">
-            <SidebarTrigger className="-ml-1" onClick={toggleSidebar} />
-            <ModeToggle />
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          <div className="flex w-full items-center px-6 gap-4">
+            <SidebarTrigger
+              className="-ml-1 cursor-pointer"
+              onClick={toggleSidebar}
+            />
+            <ThemeToggle />
           </div>
         </header>
         <Separator />
