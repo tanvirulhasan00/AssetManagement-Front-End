@@ -9,7 +9,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { Checkbox } from "./ui/checkbox";
 import { DataTableColumnHeader } from "./custom-data-table/custom-column-header";
 

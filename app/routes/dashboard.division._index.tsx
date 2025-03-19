@@ -6,12 +6,12 @@ import {
   Link,
   useLoaderData,
   useRouteError,
-} from "@remix-run/react";
+  LoaderFunctionArgs,
+} from "react-router";
 import { DeleteRange, GetAll } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { Separator } from "~/components/ui/separator";
 import { authCookie } from "~/cookies.server";
-import { LoaderFunctionArgs } from "@remix-run/node";
 import { DataTable } from "~/components/custom-data-table/data-table";
 import { columns } from "~/components/division-columns";
 import { PlusCircle } from "lucide-react";

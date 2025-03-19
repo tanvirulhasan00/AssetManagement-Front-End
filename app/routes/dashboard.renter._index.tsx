@@ -1,10 +1,10 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   Link,
   useLoaderData,
   useRouteError,
-} from "@remix-run/react";
+  LoaderFunctionArgs,
+} from "react-router";
 import { PlusCircle } from "lucide-react";
 import { useEffect } from "react";
 import { DataTable } from "~/components/custom-data-table/data-table";

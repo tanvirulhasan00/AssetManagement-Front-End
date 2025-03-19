@@ -1,5 +1,4 @@
-import { ActionFunctionArgs } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { ActionFunctionArgs, useLoaderData } from "react-router";
 import { BarChartComp } from "~/components/bar-chat";
 import { GetAll } from "~/components/data";
 import { PaiChartComp } from "~/components/pai-chart";

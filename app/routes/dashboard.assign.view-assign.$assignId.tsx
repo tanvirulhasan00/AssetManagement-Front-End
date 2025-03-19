@@ -1,5 +1,4 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, LoaderFunctionArgs } from "react-router";
 import { Get, GetAssign } from "~/components/data";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";

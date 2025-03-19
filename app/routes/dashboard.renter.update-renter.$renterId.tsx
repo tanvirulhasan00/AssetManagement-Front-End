@@ -10,7 +10,9 @@ import {
   useNavigate,
   useRouteError,
   useSearchParams,
-} from "@remix-run/react";
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+} from "react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Textarea } from "~/components/ui/textarea";
 import {
@@ -22,7 +24,6 @@ import {
   SelectValue,
 } from "~/components/ui/select";
 import { useEffect, useState } from "react";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
 import { toast } from "~/hooks/use-toast";
 import { authCookie } from "~/cookies.server";
 import { Get, UpdateMulti } from "~/components/data";

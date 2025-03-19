@@ -1,4 +1,3 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
 import {
   isRouteErrorResponse,
   Link,
@@ -6,7 +5,8 @@ import {
   useNavigate,
   useRouteError,
   useSearchParams,
-} from "@remix-run/react";
+  LoaderFunctionArgs,
+} from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
 import { Get } from "~/components/data";
