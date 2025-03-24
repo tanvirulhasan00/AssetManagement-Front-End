@@ -9,9 +9,9 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "react-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 
-import { Create, Get, GetAll, Update } from "~/components/data";
+import { Create, Get, GetAssign } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -27,60 +27,81 @@ import {
 import { authCookie, userIdCookie } from "~/cookies.server";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
+import { BdtCurrencyFormate } from "~/components/bdt-currency";
 
 export const loader = async ({ request, params }: LoaderFunctionArgs) => {
-  const { paymentId } = params;
+  const { assignId } = params;
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
   const userId = (await userIdCookie.parse(cookieHeader)) || null;
-  const response = await Get(Number(paymentId), token, "payment");
-  const payments = response.result;
-  return { payments, userId };
+  const formPayload = new FormData();
+  formPayload.append("assignId", assignId as string);
+  const response = await GetAssign(formPayload, token);
+  const responsePaymentStatus = await Get(
+    Number(assignId),
+    token,
+    "monthly-payment-status"
+  );
+  const assigns = response.result;
+  const monthlyPaymentStatus = responsePaymentStatus.result;
+  return { assigns, monthlyPaymentStatus, userId };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
+  const assignId = formData.get("id") as string;
 
   const formPayload = new FormData();
   formPayload.append("userId", formData.get("userId") as string);
+  formPayload.append("assignId", assignId);
+  formPayload.append("referenceNo", formData.get("ref") as string);
+  formPayload.append("transactionId", formData.get("transactionId") as string);
   formPayload.append("paymentMethod", formData.get("paymentMethod") as string);
+  formPayload.append("paymentType", formData.get("paymentType") as string);
   formPayload.append("paymentAmount", formData.get("paymentAmount") as string);
-  formPayload.append(
-    "paymentDueAmount",
-    formData.get("paymentDueAmount") as string
-  );
 
+  formPayload.append("flatUtilities", "0");
+  formPayload.append("paymentDue", "0");
+  formPayload.append("paymentAdvance", "0");
+
+  formPayload.append("paymentMonth", formData.get("paymentMonth") as string);
+  formPayload.append("paymentYear", formData.get("paymentYear") as string);
   formPayload.append("paymentStatus", formData.get("paymentStatus") as string);
 
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   try {
-    const response = await Update(formPayload, token, "payment");
+    console.log("f", formPayload);
+    const response = await Create(formPayload, token, "payment");
 
     if (response.success) {
       return redirect(
-        `/dashboard/payment?message=${response.message}&status=${response.statusCode}`
+        `/dashboard/assign/view-assign/${assignId}?message=${response.message}&status=${response.statusCode}`
       );
     } else {
       return redirect(
-        `/dashboard/payment/create-payment?error=${response.message}&status=${response.statusCode}`
+        `/dashboard/payment/rent-payment/${assignId}?error=${response.message}&status=${response.statusCode}`
       );
     }
   } catch (error: any) {
     return redirect(
-      `/dashboard/payment/create-payment?error=${encodeURIComponent(
+      `/dashboard/payment/rent-payment/${assignId}?error=${encodeURIComponent(
         error.message
       )}&status=${error.code}`
     );
   }
 };
 
-const CreateHouseFunc = ({
+const CreatePaymentFunc = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
-  const { payments, userId } = useLoaderData<typeof loader>();
+  const { assigns, monthlyPaymentStatus, userId } =
+    useLoaderData<typeof loader>();
+  const dueMonths = Object.keys(monthlyPaymentStatus).filter(
+    (month) => monthlyPaymentStatus[month.toLowerCase()] === "due"
+  );
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -90,6 +111,7 @@ const CreateHouseFunc = ({
   const error = searchParams.get("error");
 
   useEffect(() => {
+    console.log(error);
     if (error) {
       toast({
         title: `Failed status code ${statusCode}`,
@@ -104,57 +126,99 @@ const CreateHouseFunc = ({
     }
   }, [statusCode, message, error, setSearchParams]);
 
-  const [formData, setFormData] = useState({
-    renterName: payments.renter.name,
-  });
-
   return (
     <div className={cn("flex flex-col gap-6 ", className)} {...props}>
       <Card className="">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-2xl">Create Payment</CardTitle>
+            <CardTitle className="text-2xl">Due Payment</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <Form method="post">
             <Input type="hidden" name="userId" id="userId" value={userId} />
-            <Input
-              type="hidden"
-              name="paymentId"
-              id="paymentId"
-              value={payments.id}
-            />
+            <Input type="hidden" value={assigns.referenceNo} name="ref" />
+            <Input type="hidden" value={assigns.id} name="id" />
             <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
-                <Label htmlFor="renter">Renter Name</Label>
-                <Select name="renterId" value={payments.renterId}>
-                  <SelectTrigger id="renterId">
-                    <SelectValue placeholder="Select renter" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value={payments.renterId}>
-                        {payments.renter.name}
-                      </SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+              <div>
+                <div className="grid gap-2">
+                  <Label htmlFor="renter">Renter Information</Label>
+                  <div className="grid grid-cols-3 gap-4">
+                    <Input
+                      value={`Reference Number- ${
+                        assigns && assigns.referenceNo.length
+                          ? assigns.referenceNo
+                          : "No data"
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`Name- ${
+                        assigns && assigns?.renter.name.length
+                          ? assigns?.renter.name
+                          : "No data"
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`Mobile- ${
+                        assigns && assigns?.renter?.phoneNumber?.length
+                          ? assigns?.renter.phoneNumber
+                          : "No data"
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`FlatNumber- ${
+                        assigns && assigns?.flat.name.length
+                          ? assigns?.flat.name
+                          : "No data"
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`FlatRent- ${
+                        assigns && assigns?.flatRent.toString().length
+                          ? BdtCurrencyFormate(assigns?.flatRent)
+                          : "No data"
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`DueRent- ${
+                        assigns && assigns?.dueRent?.toString().length
+                          ? BdtCurrencyFormate(assigns.dueRent)
+                          : "No data"
+                      }`}
+                      disabled
+                    />
+                    <Input
+                      value={`AdvanceRent- ${
+                        assigns && assigns.advanceRent.toString().length
+                          ? BdtCurrencyFormate(assigns.advanceRent)
+                          : "No data"
+                      }`}
+                      disabled
+                    />
+                  </div>
+                </div>
               </div>
+
               <div className="grid gap-2">
-                <Label htmlFor="transactionId">Transaction Number</Label>
+                <Label htmlFor="transactionId">
+                  Transaction Number (Optional)
+                </Label>
                 <Input
                   id="transactionId"
                   name="transactionId"
                   type="text"
-                  value={payments.transactionId}
                   placeholder="transaction number"
                 />
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="paymentAmount">Payment Method</Label>
-                <Select name="paymentMethod" value={payments.paymentMethod}>
+                <Label htmlFor="paymentMethod">Payment Method</Label>
+                <Select name="paymentMethod">
                   <SelectTrigger id="paymentMethod">
                     <SelectValue placeholder="Select payment method" />
                   </SelectTrigger>
@@ -169,42 +233,64 @@ const CreateHouseFunc = ({
                   </SelectContent>
                 </Select>
               </div>
+
               <div className="grid gap-2">
-                <Label htmlFor="paymentAmount">Payment Amount Given</Label>
+                <Label htmlFor="paymentType">Payment Type</Label>
+                <Select name="paymentType" defaultValue="duerent">
+                  <SelectTrigger id="paymentType">
+                    <SelectValue placeholder="Select payment type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="duerent">Due Rent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="paymentAmount">Payment Amount</Label>
                 <Input
                   id="paymentAmount"
                   name="paymentAmount"
-                  type="number"
+                  type="text"
                   placeholder="payment amount"
-                  value={payments.paymentAmount}
                   required
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="paymentDueAmount1">Payment Due Amount</Label>
-                <Input
-                  id="paymentDueAmount1"
-                  name="paymentDueAmount1"
-                  type="number"
-                  value={payments.paymentDue}
-                  placeholder="due amount"
-                />
+                <Label htmlFor="paymentMonth">Payment Month</Label>
+                <Select name="paymentMonth">
+                  <SelectTrigger id="paymentMonth">
+                    <SelectValue placeholder="Select month" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {dueMonths.length > 0 ? (
+                      dueMonths.map((month, index) => (
+                        <SelectItem
+                          key={index}
+                          value={month.charAt(0).toUpperCase() + month.slice(1)}
+                        >
+                          {month.charAt(0).toUpperCase() + month.slice(1)}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem disabled value="no-data">
+                        No due month
+                      </SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="paymentDueAmount">
-                  Enter Due Amount To Pay
-                </Label>
+                <Label htmlFor="paymentYear">Payment Year</Label>
                 <Input
-                  id="paymentDueAmount"
-                  name="paymentDueAmount"
-                  type="number"
-                  value={payments.paymentDueAmount}
-                  placeholder="pay due amount"
+                  id="paymentYear"
+                  name="paymentYear"
+                  type="text"
+                  placeholder="payment year"
                 />
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="status">Payment Status</Label>
-                <Select name="paymentStatus" value={payments.paymentStatus}>
+                <Select name="paymentStatus">
                   <SelectTrigger id="paymentStatus">
                     <SelectValue placeholder="Select payment status" />
                   </SelectTrigger>
@@ -218,7 +304,7 @@ const CreateHouseFunc = ({
               </div>
 
               <Button type="submit" className="w-full">
-                Pay Due
+                Pay
               </Button>
               <Button
                 variant={"destructive"}
@@ -228,7 +314,7 @@ const CreateHouseFunc = ({
                     variant: "destructive",
                     title: "Payment cancelled",
                   });
-                  navigate("/dashboard/payment");
+                  navigate(`/dashboard/assign/view-assign/${assigns.id}`);
                 }}
                 className="w-full"
               >
@@ -242,7 +328,7 @@ const CreateHouseFunc = ({
   );
 };
 
-export default CreateHouseFunc;
+export default CreatePaymentFunc;
 
 export function ErrorBoundary() {
   const error = useRouteError();

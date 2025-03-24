@@ -31,8 +31,29 @@ const AreaDataTable = () => {
 
   const handleDelete = async (selectedIds: string[]) => {
     try {
-      await DeleteRange(selectedIds, token, "area");
-      location.reload();
+      const res = await DeleteRange(selectedIds, token, "area");
+      if (res.success === true) {
+        toast({
+          title: res.statusCode,
+          description: res.message,
+          variant: "default",
+          // action: (
+          //   <button
+          //     onClick={() => location.reload()}
+          //     className="ml-2 px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          //   >
+          //     OK
+          //   </button>
+          // ),
+        });
+        location.reload();
+      } else {
+        toast({
+          title: res.statusCode,
+          description: res.message,
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       toast({
         title: error.code,

@@ -8,7 +8,7 @@ import {
 import { PlusCircle } from "lucide-react";
 import { useEffect } from "react";
 import { DataTable } from "~/components/custom-data-table/data-table";
-import { DeleteRange, GetAll, GetAllUser } from "~/components/data";
+import { DeleteRange, GetAll } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { columns } from "~/components/user-columns";
@@ -57,6 +57,7 @@ const Users = () => {
         columns={columns}
         data={data}
         onDelete={handleDelete}
+        btnName="Delete"
         filterWith="name"
       />
     </div>

@@ -124,7 +124,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {table.getRowModel().rows && table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -158,7 +158,7 @@ export function DataTable<TData, TValue>({
       {getSelectedRowIds().length > 0 && (
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="destructive">
+            <Button variant="destructive" disabled>
               {btnName} {getSelectedRowIds().length}{" "}
               {getSelectedRowIds().length > 1 ? "items" : "item"}
             </Button>

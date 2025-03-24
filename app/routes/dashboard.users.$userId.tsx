@@ -118,11 +118,11 @@ const UserProfile = () => {
       {/* Profile Sections */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-7xl mt-6 ">
         {/* About Section */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="w-full grid grid-cols-1 gap-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 overflow-hidden">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
               Address
-            </h3>
+            </h1>
             <p className="text-gray-600 dark:text-gray-300 mt-2 ">
               {user.address}
             </p>
@@ -147,7 +147,7 @@ const UserProfile = () => {
           </div>
 
           {/* Posts Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 col-span-1 md:col-span-2">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               User Information
             </h3>
@@ -165,15 +165,15 @@ const UserProfile = () => {
             </p>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 h-[55rem]">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white h-[5%] flex items-center">
             National Id
-          </h3>
-          <div className="mt-4 flex space-x-0">
+          </h1>
+          <div className="grid gap-2 h-[95%]">
             <img
               src={user.nidPicUrl}
               alt="Nid"
-              className="w-full h-full rounded-md object-cover"
+              className="w-full h-full rounded-md object-fit"
             />
           </div>
         </div>

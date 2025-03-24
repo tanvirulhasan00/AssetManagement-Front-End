@@ -64,6 +64,28 @@ export const GetAssign = async (formPayload: FormData, authToken: string) => {
   return data;
 };
 
+export const GetAllFamilyMember = async (
+  formPayload: FormData | null,
+  authToken: string
+) => {
+  // console.log(formPayload);
+  const response = await axios.post(
+    `http://localhost:5233/api/v1/family-member/getall`,
+    formPayload,
+    {
+      // Pass query parameters here
+      headers: {
+        Accept: "text/plain", // Set header as in curl request
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${authToken}`, // Include token here
+      },
+    }
+  );
+  const data = await response.data;
+  console.log("f", data);
+  return data;
+};
+
 export const UserRegistration = async (
   formPayload: FormData,
   authToken: string

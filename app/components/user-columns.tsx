@@ -97,6 +97,19 @@ export const columns: ColumnDef<User>[] = [
     ),
   },
   {
+    accessorKey: "profilePicUrl",
+    header: "Image",
+    cell: ({ row }) => (
+      <div className="w-[3rem] h-[3rem] rounded-full">
+        <img
+          className="w-full h-full rounded-full"
+          src={row.getValue("profilePicUrl")}
+          alt="user_image"
+        />
+      </div>
+    ),
+  },
+  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
@@ -105,7 +118,7 @@ export const columns: ColumnDef<User>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal />
             </Button>

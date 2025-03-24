@@ -82,7 +82,7 @@ const FlatHouseFunc = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
-  const { flat, category, house } = useLoaderData<typeof loader>();
+  const { flat, category } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();

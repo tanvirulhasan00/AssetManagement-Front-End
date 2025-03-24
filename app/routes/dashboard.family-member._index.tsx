@@ -8,7 +8,7 @@ import {
   useRouteError,
   LoaderFunctionArgs,
 } from "react-router";
-import { DeleteRange, GetAll } from "~/components/data";
+import { DeleteRange, GetAll, GetAllFamilyMember } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { Separator } from "~/components/ui/separator";
 
@@ -20,7 +20,9 @@ import { PlusCircle } from "lucide-react";
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
-  const response = await GetAll(token, "family-member");
+  let formPayload: FormData | null = new FormData();
+  formPayload = null;
+  const response = await GetAllFamilyMember(formPayload, token);
   const data = response.result;
   return { data, token };
 };

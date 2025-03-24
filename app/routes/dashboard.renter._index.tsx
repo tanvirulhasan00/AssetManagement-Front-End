@@ -70,6 +70,7 @@ const Renter = () => {
         columns={columns}
         data={data}
         onDelete={handleDelete}
+        btnName="Delete"
         filterWith="name"
       />
     </div>

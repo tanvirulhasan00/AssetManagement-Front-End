@@ -9,10 +9,13 @@ import {
 } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { useEffect } from "react";
-import { Get } from "~/components/data";
+import { Get, GetAssign, GetAllFamilyMember } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { authCookie } from "~/cookies.server";
 import { toast } from "~/hooks/use-toast";
+import { BdtCurrencyFormate } from "~/components/bdt-currency";
+import { ScrollArea } from "~/components/ui/scroll-area";
+import { Card } from "~/components/ui/card";
 
 export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const { renterId } = params;
@@ -20,15 +23,29 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
   const token = (await authCookie.parse(cookieHeader)) || null;
 
   const response = await Get(Number(renterId), token, "renter");
+  const formPayload = new FormData();
+  const formPayload2 = new FormData();
+  formPayload.append("renterId", renterId as string);
+  formPayload2.append("renterId", renterId as string);
+  formPayload2.append("familyMember", "0");
+  const resFamilyMember = await GetAllFamilyMember(formPayload2, token);
+  const resAssign = await GetAssign(formPayload, token);
   const renter = await response.result;
+  const assign = await resAssign.result;
+  const familyMember = await resFamilyMember.result;
+  // console.log("gd1", assign);
+  console.log("gd2", familyMember);
 
-  return { renter };
+  return { renter, assign, familyMember };
 };
 
 const RenterProfile = () => {
-  const { renter } = useLoaderData<typeof loader>();
+  const { renter, assign, familyMember } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-
+  const emergencyContact = familyMember.filter(
+    (x: any) => x.isEmergencyContact == 1
+  );
+  console.log("g", emergencyContact.length);
   const [searchParams, setSearchParams] = useSearchParams();
 
   const message = searchParams.get("message");
@@ -71,7 +88,7 @@ const RenterProfile = () => {
           className="w-full h-full object-cover relative"
         />
         <Button
-          className=" absolute top-1 left-1 bg-inherit"
+          className=" absolute top-1 left-1 bg-inherit border-2 border-white"
           onClick={handleClick}
         >
           <ArrowLeft />
@@ -100,8 +117,14 @@ const RenterProfile = () => {
               Update info
             </Link>
           </button>
-          <Button className="px-4 py-2 bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400 transition">
-            Other
+          <Button
+            disabled={assign && assign?.id != 0 ? false : true}
+            onClick={() =>
+              navigate(`/dashboard/assign/view-assign/${assign?.id}`)
+            }
+            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400 transition"
+          >
+            Assign Info
           </Button>
         </div>
       </div>
@@ -109,13 +132,13 @@ const RenterProfile = () => {
       {/* Profile Sections */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-7xl mt-6 ">
         {/* About Section */}
-        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 overflow-hidden">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               Address
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mt-2 ">
-              {renter.address}
+              {renter.address ? renter.address : "No Data"}
             </p>
           </div>
 
@@ -124,27 +147,125 @@ const RenterProfile = () => {
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               Room Informations
             </h3>
-            <div className="mt-4">Two Factor Auth: </div>
-            <div className="mt-4">Phone Number Confirmed: </div>
-            <div className="mt-4">Email Confirmed:</div>
+            <div className="mt-4">
+              Ref No:{" "}
+              <span className="text-orange-600">
+                {assign?.referenceNo ? assign?.referenceNo : "No Data"}
+              </span>
+            </div>
+
+            <div className="mt-4">
+              Flat Number:{" "}
+              <span className="text-orange-600">
+                {assign?.flat?.name ? assign?.flat?.name : "No Data"}
+              </span>{" "}
+            </div>
+            <div className="mt-4">
+              Flat Price:{" "}
+              <span className="text-orange-600">
+                {BdtCurrencyFormate(assign?.flatRent)}
+              </span>
+            </div>
           </div>
           {/* Emergency contact Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 overflow-hidden">
+          <div className=" bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 overflow-hidden col-span-1 md:col-span-2">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               Emergency contacts
             </h3>
-            <div className="mt-4">Two Factor Auth: </div>
-            <div className="mt-4">Phone Number Confirmed: </div>
-            <div className="mt-4">Email Confirmed:</div>
+            {emergencyContact && emergencyContact.length > 0 ? (
+              <ScrollArea className="w-full h-[15rem] ">
+                {emergencyContact.map((contact: any, index: any) => (
+                  <Card
+                    key={index}
+                    className="grid grid-cols-2 mt-3 justify-between items-center bg-gray-600 p-2 "
+                  >
+                    <div className="grid gap-2">
+                      <div className="">
+                        Relation:{" "}
+                        <span className="text-orange-600">
+                          {contact.relation}
+                        </span>{" "}
+                      </div>
+                      <div className="">
+                        Name:
+                        <span className="text-orange-600">
+                          {contact.name}
+                        </span>{" "}
+                      </div>
+                      <div className="">
+                        Mobile:{" "}
+                        <span className="text-orange-600">
+                          {contact.phoneNumber}
+                        </span>{" "}
+                      </div>
+                      <div className="">
+                        Nid Number:{" "}
+                        <span className="text-orange-600">
+                          {contact.nidNumber}
+                        </span>{" "}
+                      </div>
+                    </div>
+                    <div className="w-full rounded-lg grid justify-end">
+                      <img
+                        className="w-[4rem] rounded-lg"
+                        src={contact.imageUrl}
+                        alt=""
+                      />
+                    </div>
+                  </Card>
+                ))}
+              </ScrollArea>
+            ) : (
+              <div className="grid items-center justify-center">
+                <h1 className="text-orange-600">No Data</h1>
+              </div>
+            )}
           </div>
           {/* Family member Section */}
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 overflow-hidden col-span-1 md:col-span-2">
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
               Family Members
             </h3>
-            <div className="mt-4">Two Factor Auth: </div>
-            <div className="mt-4">Phone Number Confirmed: </div>
-            <div className="mt-4">Email Confirmed:</div>
+            {familyMember && familyMember.length > 0 ? (
+              <ScrollArea className="w-full h-[15rem] ">
+                {familyMember.map((member: any, index: any) => (
+                  <Card
+                    key={index}
+                    className="bg-gray-600 grid grid-cols-2 items-center  gap-2 mb-2 p-2 rounded-lg mt-3"
+                  >
+                    <div className="grid gap-2">
+                      <div>
+                        Relation:{" "}
+                        <span className="text-orange-600">
+                          {member.relation}
+                        </span>{" "}
+                      </div>
+                      <div className="">
+                        Name:{" "}
+                        <span className="text-orange-600">{member.name}</span>{" "}
+                      </div>
+                      <div className="">
+                        Mobile:{" "}
+                        <span className="text-orange-600">
+                          {member.phoneNumber}
+                        </span>{" "}
+                      </div>
+                    </div>
+                    <div className="w-full rounded-lg grid justify-end">
+                      <img
+                        className="w-[4rem] rounded-lg"
+                        src={member.imageUrl}
+                        alt=""
+                      />
+                    </div>
+                  </Card>
+                ))}
+              </ScrollArea>
+            ) : (
+              <div className="grid items-center justify-center">
+                <h1 className="text-orange-600">No Data</h1>
+              </div>
+            )}
           </div>
 
           {/* Posts Section */}
@@ -190,11 +311,11 @@ const RenterProfile = () => {
             </p>
           </div>
         </div>
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 h-[55rem]">
+          <h1 className="text-xl font-semibold text-gray-900 dark:text-white  h-[5%] flex items-center">
             National Id
-          </h3>
-          <div className="mt-4 flex space-x-0">
+          </h1>
+          <div className="grid gap-2 h-[95%]">
             <img
               src={renter.nidImageUrl}
               alt="Nid"

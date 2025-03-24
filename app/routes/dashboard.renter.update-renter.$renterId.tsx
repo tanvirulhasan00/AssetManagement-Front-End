@@ -265,7 +265,10 @@ const RegistrationForm = ({
               <Label htmlFor="address">Address</Label>
               <Textarea
                 id="address"
-                value={renter.address}
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
                 name="address"
                 placeholder="Address"
               />

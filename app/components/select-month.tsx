@@ -23,7 +23,7 @@ type SelectRenterProps = {
   onChange: (id: string) => void; // Function to pass the selected renter ID to parent
 };
 
-const SelectRenter = ({ onChange }: SelectRenterProps) => {
+const SelectMonth = ({ onChange }: SelectRenterProps) => {
   const { renter } = useLoaderData<typeof loader>();
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
@@ -37,34 +37,45 @@ const SelectRenter = ({ onChange }: SelectRenterProps) => {
           aria-expanded={open}
           className="justify-between"
         >
-          {value
-            ? renter.find((r: any) => r.name.toString() === value)?.name
-            : "Select renter"}
+          {value ? value : "Select month"}
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
 
       <PopoverContent className="p-0 w-[700px] max-sm:w-full">
         <Command>
-          <CommandInput placeholder="Search renter..." className="h-9" />
+          <CommandInput placeholder="Search month..." className="h-9" />
           <CommandList>
-            <CommandEmpty>No Renter found.</CommandEmpty>
+            <CommandEmpty>No Month found.</CommandEmpty>
             <CommandGroup>
-              {renter.map((r: any) => (
+              {[
+                "January",
+                "February",
+                "March",
+                "April",
+                "May",
+                "June",
+                "July",
+                "August",
+                "September",
+                "October",
+                "November",
+                "December",
+              ].map((month, index) => (
                 <CommandItem
-                  key={r.id}
-                  value={r.name.toString()}
+                  key={index}
+                  value={month}
                   onSelect={(currentValue) => {
                     setValue(currentValue === value ? "" : currentValue);
-                    onChange(r.id); // Pass selected ID to parent
+                    onChange(month); // Pass selected ID to parent
                     setOpen(false);
                   }}
                 >
-                  {r.name}
+                  {month}
                   <Check
                     className={cn(
                       "ml-auto",
-                      value === r.name.toString() ? "opacity-100" : "opacity-0"
+                      value === month ? "opacity-100" : "opacity-0"
                     )}
                   />
                 </CommandItem>
@@ -77,4 +88,4 @@ const SelectRenter = ({ onChange }: SelectRenterProps) => {
   );
 };
 
-export default SelectRenter;
+export default SelectMonth;
