@@ -33,7 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 
 const data: Payment[] = [
   {

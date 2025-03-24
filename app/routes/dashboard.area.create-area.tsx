@@ -1,9 +1,4 @@
 import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import {
   Form,
   isRouteErrorResponse,
   useLoaderData,
@@ -11,8 +6,11 @@ import {
   useNavigation,
   useRouteError,
   useSearchParams,
-} from "@remix-run/react";
-import { useEffect, useTransition } from "react";
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "react-router";
+import { useEffect } from "react";
 
 import { Create, GetAll } from "~/components/data";
 import { Button } from "~/components/ui/button";

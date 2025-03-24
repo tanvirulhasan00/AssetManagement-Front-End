@@ -2,12 +2,12 @@ import {
   redirect,
   type LoaderFunctionArgs,
   type MetaFunction,
-} from "@remix-run/node";
+} from "react-router";
 
 import { authCookie, userIdCookie } from "~/cookies.server";
 import DashboardLayout from "./dashboard/route";
-import { ErrorBoundary } from "~/error-boundary";
-import { isRouteErrorResponse, useRouteError } from "@remix-run/react";
+// import { ErrorBoundary } from "~/error-boundary";
+import { isRouteErrorResponse, useRouteError } from "react-router";
 
 export const meta: MetaFunction = () => {
   return [

@@ -1,16 +1,14 @@
 import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import {
   Form,
   isRouteErrorResponse,
   useLoaderData,
   useNavigate,
   useRouteError,
   useSearchParams,
-} from "@remix-run/react";
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "react-router";
 import { useEffect, useState } from "react";
 
 import { Get, GetAll, Update } from "~/components/data";
@@ -84,7 +82,7 @@ const FlatHouseFunc = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
-  const { flat, category, house } = useLoaderData<typeof loader>();
+  const { flat, category } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();

@@ -2,7 +2,7 @@ import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { Form, Link } from "@remix-run/react";
+import { Form } from "react-router";
 import {
   Card,
   CardContent,
@@ -19,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { ModeToggle } from "~/components/mode-toggle";
+
 import { ChangeEvent, useState } from "react";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 
@@ -47,7 +47,7 @@ const SignUpForm = ({
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-2xl">Registration</CardTitle>
-            <ModeToggle />
+            {/* <ModeToggle /> */}
           </div>
           <CardDescription>Create account</CardDescription>
         </CardHeader>

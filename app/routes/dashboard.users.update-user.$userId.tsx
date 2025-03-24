@@ -1,17 +1,15 @@
 import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import {
   Form,
   isRouteErrorResponse,
   useLoaderData,
   useNavigate,
   useRouteError,
   useSearchParams,
-} from "@remix-run/react";
-import axios from "axios";
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "react-router";
+
 import { useEffect, useState } from "react";
 import { GetUser, UpdateMulti } from "~/components/data";
 import { Button } from "~/components/ui/button";

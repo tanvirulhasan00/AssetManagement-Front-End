@@ -1,16 +1,13 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
 import {
   isRouteErrorResponse,
-  Link,
   useLoaderData,
   useRouteError,
-} from "@remix-run/react";
-import { PlusCircle } from "lucide-react";
+  LoaderFunctionArgs,
+} from "react-router";
 import { useEffect } from "react";
 import { DataTable } from "~/components/custom-data-table/data-table";
 import { GetAll } from "~/components/data";
 import { columns } from "../components/payment-columns";
-import { Button } from "~/components/ui/button";
 import { Separator } from "~/components/ui/separator";
 import { authCookie } from "~/cookies.server";
 import { toast } from "~/hooks/use-toast";
@@ -26,6 +23,7 @@ export const loader = async ({ request }: LoaderFunctionArgs) => {
 
 const PaymentDataTable = () => {
   const { data } = useLoaderData<typeof loader>();
+  console.log(data);
 
   const handleDelete = async (selectedIds: string[]) => {
     toast({
@@ -37,7 +35,7 @@ const PaymentDataTable = () => {
     <div>
       <div className="flex justify-between items-center">
         <h1>Payment List</h1>
-        <Button>
+        {/* <Button>
           <Link
             to={"/dashboard/payment/create-payment"}
             className="flex items-center gap-1"
@@ -45,7 +43,7 @@ const PaymentDataTable = () => {
             <PlusCircle />
             Create Payment
           </Link>
-        </Button>
+        </Button> */}
       </div>
       <Separator className="mt-4" />
       <DataTable
