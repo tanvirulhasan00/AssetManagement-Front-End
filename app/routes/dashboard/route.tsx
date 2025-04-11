@@ -35,14 +35,19 @@ export const action = async () => {
 // Loader for redirection to /dashboard/home
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // If the current route is /dashboard, redirect to /dashboard/home
-  const url = new URL(request.url);
-  if (url.pathname === "/dashboard" || url.pathname === "/dashboard/") {
-    return redirect("/dashboard/home");
-  }
   const cookieHeader = request.headers.get("Cookie");
   const cookieUserId = request.headers.get("Cookie");
   const cookie = (await authCookie.parse(cookieHeader)) || null;
   const userId = (await userIdCookie.parse(cookieUserId)) || null;
+
+  if (!cookie) {
+    return redirect("/");
+  }
+
+  const url = new URL(request.url);
+  if (url.pathname === "/dashboard" || url.pathname === "/dashboard/") {
+    return redirect("/dashboard/home");
+  }
   const user = await GetUser(userId, cookie);
   const userRole = await UserRole(userId);
 

@@ -163,12 +163,12 @@ export const columns: ColumnDef<Payment>[] = [
             >
               Copy Payment ID
             </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            {/* <DropdownMenuSeparator /> */}
+            {/* <DropdownMenuItem>
               <Link to={`/dashboard/payment/due-payment/${payment.id}`}>
                 Due Payment
               </Link>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
           </DropdownMenuContent>
         </DropdownMenu>
       );

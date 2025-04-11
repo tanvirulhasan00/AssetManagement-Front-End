@@ -35,15 +35,6 @@ const PaymentDataTable = () => {
     <div>
       <div className="flex justify-between items-center">
         <h1>Payment List</h1>
-        {/* <Button>
-          <Link
-            to={"/dashboard/payment/create-payment"}
-            className="flex items-center gap-1"
-          >
-            <PlusCircle />
-            Create Payment
-          </Link>
-        </Button> */}
       </div>
       <Separator className="mt-4" />
       <DataTable

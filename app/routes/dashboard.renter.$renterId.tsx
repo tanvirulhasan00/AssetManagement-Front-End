@@ -88,7 +88,7 @@ const RenterProfile = () => {
           className="w-full h-full object-cover relative"
         />
         <Button
-          className=" absolute top-1 left-1 bg-inherit border-2 border-white"
+          className=" absolute top-1 left-1 bg-inherit border-2 border-white cursor-pointer"
           onClick={handleClick}
         >
           <ArrowLeft />
@@ -122,7 +122,7 @@ const RenterProfile = () => {
             onClick={() =>
               navigate(`/dashboard/assign/view-assign/${assign?.id}`)
             }
-            className="px-4 py-2 bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400 transition"
+            className="px-4 py-2 cursor-pointer bg-gray-300 text-gray-800 rounded-full hover:bg-gray-400 transition"
           >
             Assign Info
           </Button>
@@ -177,7 +177,7 @@ const RenterProfile = () => {
                 {emergencyContact.map((contact: any, index: any) => (
                   <Card
                     key={index}
-                    className="grid grid-cols-2 mt-3 justify-between items-center bg-gray-600 p-2 "
+                    className="grid grid-cols-2 mt-3 justify-between items-center bg-gray-700 p-2 "
                   >
                     <div className="grid gap-2">
                       <div className="">
@@ -231,7 +231,7 @@ const RenterProfile = () => {
                 {familyMember.map((member: any, index: any) => (
                   <Card
                     key={index}
-                    className="bg-gray-600 grid grid-cols-2 items-center  gap-2 mb-2 p-2 rounded-lg mt-3"
+                    className="bg-gray-700 grid grid-cols-2 items-center  gap-2 mb-2 p-2 rounded-lg mt-3"
                   >
                     <div className="grid gap-2">
                       <div>

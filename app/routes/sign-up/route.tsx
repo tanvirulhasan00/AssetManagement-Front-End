@@ -85,6 +85,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  return redirect("/login");
   const url = new URL(request.url);
   const message = url.searchParams.get("message");
   const error = url.searchParams.get("error");
