@@ -188,7 +188,6 @@ const ViewAssign = () => {
               </h1>
             </div>
             <div className="grid gap-3">
-              {/* <Link to={"/dashboard/payment/create-payment"}> */}
               <Button
                 onClick={() =>
                   navigate(`/dashboard/payment/rent-payment/${assign.id}`)
@@ -197,7 +196,7 @@ const ViewAssign = () => {
               >
                 Pay Rent
               </Button>
-              {/* </Link> */}
+
               <Button
                 disabled={assign.dueRent > 0 ? false : true}
                 onClick={() =>
