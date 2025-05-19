@@ -20,7 +20,7 @@ import {
   CommandSeparator,
   CommandShortcut,
 } from "~/components/ui/command";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 import { loader } from "~/routes/dashboard.payment.create-payment";
 import { cn } from "~/lib/utils";
 

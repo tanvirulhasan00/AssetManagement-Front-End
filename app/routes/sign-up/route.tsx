@@ -1,11 +1,7 @@
-import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "react-router";
 import SignUpForm from "./sign-up-form";
 import axios from "axios";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { AlertCircle, CircleCheck } from "lucide-react";
 
@@ -89,6 +85,7 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 };
 
 export const loader = async ({ request }: LoaderFunctionArgs) => {
+  return redirect("/login");
   const url = new URL(request.url);
   const message = url.searchParams.get("message");
   const error = url.searchParams.get("error");

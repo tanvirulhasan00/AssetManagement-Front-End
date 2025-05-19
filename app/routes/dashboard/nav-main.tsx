@@ -1,4 +1,4 @@
-import { Link, useLoaderData, useLocation } from "@remix-run/react";
+import { Link, useLoaderData, useLocation } from "react-router";
 import {
   ChevronRight,
   Home,
@@ -131,11 +131,14 @@ const NavMain = () => {
                 : "hover:text-gray-700"
             )}
           >
-            <SidebarMenuItem>
+            <SidebarMenuItem className="cursor-pointer">
               <CollapsibleTrigger asChild>
                 {menu.title === "Areas" ? (
                   <Link to={menu.url}>
-                    <SidebarMenuButton tooltip={menu.title}>
+                    <SidebarMenuButton
+                      tooltip={menu.title}
+                      className="cursor-pointer"
+                    >
                       {menu.icon && <menu.icon />}
                       <span>{menu.title}</span>
                       <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
@@ -148,7 +151,10 @@ const NavMain = () => {
                     //   role == "manager" && menu.title == "User" ? true : false
                     // }
                   >
-                    <SidebarMenuButton tooltip={menu.title}>
+                    <SidebarMenuButton
+                      tooltip={menu.title}
+                      className="cursor-pointer"
+                    >
                       <menu.icon />
                       {menu.title}
                     </SidebarMenuButton>

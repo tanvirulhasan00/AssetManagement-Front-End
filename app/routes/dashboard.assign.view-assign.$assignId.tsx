@@ -1,5 +1,10 @@
-import { LoaderFunctionArgs } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
+import {
+  Link,
+  useLoaderData,
+  LoaderFunctionArgs,
+  useNavigate,
+} from "react-router";
+import { BdtCurrencyFormate } from "~/components/bdt-currency";
 import { Get, GetAssign } from "~/components/data";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
@@ -36,6 +41,7 @@ export const loader = async ({ params, request }: LoaderFunctionArgs) => {
 const ViewAssign = () => {
   const { assign, monthlyStatus, flat } = useLoaderData<typeof loader>();
   console.log(assign);
+  const navigate = useNavigate();
   return (
     <div>
       <Card className="mb-5">
@@ -48,15 +54,21 @@ const ViewAssign = () => {
         <CardContent className="h-full">
           <div className="flex justify-between items-center ">
             <p>
-              Assign ID: <span className="text-orange-600">{assign.id}</span>
+              Assign ID: <span className="text-green-600">{assign.id}</span>
             </p>
             <p>
               Reference Number:{" "}
-              <span className="text-orange-600">{assign.referenceNo}</span>
+              <span className="text-green-600">{assign.referenceNo}</span>
+            </p>
+            <p>
+              Flat Rent:{" "}
+              <span className="text-green-600">
+                {BdtCurrencyFormate(assign.flatRent)}
+              </span>
             </p>
             <p>
               Active Status:{" "}
-              <span className="text-orange-600">
+              <span className="text-green-600">
                 {assign.active === 1 ? "Active" : "InActive"}
               </span>
             </p>
@@ -73,11 +85,11 @@ const ViewAssign = () => {
             <div className="grid gap-1">
               <h1>
                 Name:{" "}
-                <span className="text-orange-600">{assign?.renter?.name}</span>
+                <span className="text-green-600">{assign?.renter?.name}</span>
               </h1>
               <h1>
                 Phone Number:{" "}
-                <span className="text-orange-600">
+                <span className="text-green-600">
                   {assign?.renter?.phoneNumber}
                 </span>
               </h1>
@@ -91,7 +103,12 @@ const ViewAssign = () => {
             </div>
           </CardContent>
           <CardFooter>
-            <Button>View More</Button>
+            <Link
+              to={`/dashboard/renter/${assign?.renter?.id}`}
+              className="hover:underline text-green-400 hover:text-green-600"
+            >
+              details &rarr;
+            </Link>
           </CardFooter>
         </Card>
         <Card className="w-full">
@@ -101,30 +118,36 @@ const ViewAssign = () => {
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-3">
             <h1>
-              Flat No: <span className="text-orange-600">{flat.name}</span>
+              Flat No: <span className="text-green-600">{flat.name}</span>
             </h1>
             <h1>
               House Name:{" "}
-              <span className="text-orange-600">{flat?.house?.name}</span>
+              <span className="text-green-600">{flat?.house?.name}</span>
             </h1>
             <h1>
               Flat Category:{" "}
-              <span className="text-orange-600">{flat?.category?.name}</span>
+              <span className="text-green-600">{flat?.category?.name}</span>
             </h1>
             <h1>
-              Floor No: <span className="text-orange-600">{flat.floorNo}</span>
+              Floor No: <span className="text-green-600">{flat.floorNo}</span>
             </h1>
             <h1>
               Total Room:{" "}
-              <span className="text-orange-600">{flat.totalRoom}</span>
+              <span className="text-green-600">{flat.totalRoom}</span>
             </h1>
-            <h1>
+            <h1
+              className={`${
+                flat.flatAdvance > 0 ? "" : "line-through text-red-700"
+              }`}
+            >
               Flat Advance:{" "}
-              <span className="text-orange-600">{flat.flatAdvance}</span>
+              <span className="text-orange-600">
+                {BdtCurrencyFormate(flat.flatAdvance)}
+              </span>
             </h1>
             <h1>
               Flat Status:{" "}
-              <span className="text-orange-600">
+              <span className="text-green-600">
                 {flat.active === 1 ? "Active" : "InActive"}
               </span>
             </h1>
@@ -141,25 +164,47 @@ const ViewAssign = () => {
         <CardContent className="h-full">
           <div className="grid grid-cols-2 gap-3">
             <div className="grid gap-3">
-              <h1>
-                Flat Advance Amount:{" "}
-                <span className="text-orange-600">{flat.flatAdvance}</span>
+              <h1
+                className={`${
+                  flat.flatAdvance > 0 ? "" : "line-through text-red-700"
+                }`}
+              >
+                Flat Advance Amount (Given):{" "}
+                <span className="text-orange-600">
+                  {BdtCurrencyFormate(flat.flatAdvance)}
+                </span>
               </h1>
               <h1>
-                Due Rent Amount:{" "}
-                <span className="text-orange-600">{assign.dueRent}</span>
+                Total Rent Due:{" "}
+                <span className="text-green-600">
+                  {BdtCurrencyFormate(assign.dueRent)}
+                </span>
               </h1>
               <h1>
-                Rent Advance Amount:{" "}
-                <span className="text-orange-600">{assign.advanceRent}</span>
+                Total Rent Advance:{" "}
+                <span className="text-green-600">
+                  {BdtCurrencyFormate(assign.advanceRent)}
+                </span>
               </h1>
             </div>
             <div className="grid gap-3">
-              <Button className="bg-green-400 hover:bg-green-500">
-                <Link to={"/dashboard/payment/create-payment"}>Pay Rent</Link>
+              <Button
+                onClick={() =>
+                  navigate(`/dashboard/payment/rent-payment/${assign.id}`)
+                }
+                className="bg-green-400 hover:bg-green-500 cursor-pointer w-full"
+              >
+                Pay Rent
               </Button>
-              <Button className="bg-orange-400 hover:bg-orange-500">
-                <Link to={"/dashboard/payment/due-payment"}>Pay Due Rent</Link>
+
+              <Button
+                disabled={assign.dueRent > 0 ? false : true}
+                onClick={() =>
+                  navigate(`/dashboard/payment/due-payment/${assign.id}`)
+                }
+                className="bg-orange-400 hover:bg-orange-500 cursor-pointer w-full"
+              >
+                Pay Due Rent
               </Button>
             </div>
           </div>
@@ -167,7 +212,7 @@ const ViewAssign = () => {
           <div>
             <h1 className="mb-5 text-lg">
               Monthly Payment Status -{" "}
-              <span className="text-orange-600">{monthlyStatus.year}</span>
+              <span className="text-green-600">{monthlyStatus.year}</span>
             </h1>
             <div className="grid grid-cols-4 gap-3 items-center ">
               {[

@@ -10,7 +10,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Button } from "./ui/button";
 import { MoreHorizontal } from "lucide-react";
-import { Link } from "@remix-run/react";
+import { Link } from "react-router";
 import { DataTableColumnHeader } from "./custom-data-table/custom-column-header";
 
 export type Renter = {
@@ -93,6 +93,19 @@ export const columns: ColumnDef<Renter>[] = [
     ),
   },
   {
+    accessorKey: "imageUrl",
+    header: "Image",
+    cell: ({ row }) => (
+      <div className="capitalize w-[3rem] h-[3rem] rounded-full">
+        <img
+          className="w-full h-full rounded-full"
+          src={row.getValue("imageUrl")}
+          alt="renter_image"
+        />
+      </div>
+    ),
+  },
+  {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
@@ -101,7 +114,7 @@ export const columns: ColumnDef<Renter>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
               <span className="sr-only">Open menu</span>
               <MoreHorizontal />
             </Button>

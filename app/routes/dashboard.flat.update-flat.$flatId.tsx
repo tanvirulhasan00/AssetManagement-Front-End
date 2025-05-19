@@ -1,16 +1,14 @@
 import {
-  ActionFunctionArgs,
-  LoaderFunctionArgs,
-  redirect,
-} from "@remix-run/node";
-import {
   Form,
   isRouteErrorResponse,
   useLoaderData,
   useNavigate,
   useRouteError,
   useSearchParams,
-} from "@remix-run/react";
+  ActionFunctionArgs,
+  LoaderFunctionArgs,
+  redirect,
+} from "react-router";
 import { useEffect, useState } from "react";
 
 import { Get, GetAll, Update } from "~/components/data";
@@ -59,6 +57,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
+  console.log("flat", formPayload);
+
   try {
     const response = await Update(formPayload, token, "flat");
 
@@ -84,7 +84,7 @@ const FlatHouseFunc = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
-  const { flat, category, house } = useLoaderData<typeof loader>();
+  const { flat, category } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
 
   const [searchParams, setSearchParams] = useSearchParams();

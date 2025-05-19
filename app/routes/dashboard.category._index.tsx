@@ -6,8 +6,8 @@ import {
   Link,
   useLoaderData,
   useRouteError,
-} from "@remix-run/react";
-import { LoaderFunctionArgs } from "@remix-run/node";
+  LoaderFunctionArgs,
+} from "react-router";
 import { DeleteRange, GetAll } from "~/components/data";
 import { toast } from "~/hooks/use-toast";
 import { Separator } from "~/components/ui/separator";

@@ -9,10 +9,9 @@ import {
   LoaderFunctionArgs,
   redirect,
 } from "react-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 
-import { Create, GetAll } from "~/components/data";
-import SearchReference from "~/components/search-ref";
+import { Create, GetAssign } from "~/components/data";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
@@ -28,24 +27,27 @@ import {
 import { authCookie, userIdCookie } from "~/cookies.server";
 import { toast } from "~/hooks/use-toast";
 import { cn } from "~/lib/utils";
+import { BdtCurrencyFormate } from "~/components/bdt-currency";
 
-export const loader = async ({ request }: LoaderFunctionArgs) => {
+export const loader = async ({ request, params }: LoaderFunctionArgs) => {
+  const { assignId } = params;
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
   const userId = (await userIdCookie.parse(cookieHeader)) || null;
-  const response = await GetAll(token, "renter");
-  const responseA = await GetAll(token, "assign");
-  const renters = response.result;
-  const assigns = responseA.result;
-  return { renters, assigns, userId };
+  const formPayload = new FormData();
+  formPayload.append("assignId", assignId as string);
+  const response = await GetAssign(formPayload, token);
+  const assigns = response.result;
+  return { assigns, userId };
 };
 
 export const action = async ({ request }: ActionFunctionArgs) => {
   const formData = await request.formData();
+  const assignId = formData.get("id") as string;
 
   const formPayload = new FormData();
   formPayload.append("userId", formData.get("userId") as string);
-  formPayload.append("assignId", formData.get("id") as string);
+  formPayload.append("assignId", assignId);
   formPayload.append("referenceNo", formData.get("ref") as string);
   formPayload.append("transactionId", formData.get("transactionId") as string);
   formPayload.append("paymentMethod", formData.get("paymentMethod") as string);
@@ -71,39 +73,30 @@ export const action = async ({ request }: ActionFunctionArgs) => {
 
     if (response.success) {
       return redirect(
-        `/dashboard/payment?message=${response.message}&status=${response.statusCode}`
+        `/dashboard/assign/view-assign/${assignId}?message=${response.message}&status=${response.statusCode}`
       );
     } else {
       return redirect(
-        `/dashboard/payment/create-payment?error=${response.message}&status=${response.statusCode}`
+        `/dashboard/payment/rent-payment/${assignId}?error=${response.message}&status=${response.statusCode}`
       );
     }
   } catch (error: any) {
     return redirect(
-      `/dashboard/payment/create-payment?error=${encodeURIComponent(
+      `/dashboard/payment/rent-payment/${assignId}?error=${encodeURIComponent(
         error.message
       )}&status=${error.code}`
     );
   }
 };
 
-const CreateHouseFunc = ({
+const CreatePaymentFunc = ({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) => {
   const { assigns, userId } = useLoaderData<typeof loader>();
   const navigate = useNavigate();
-  const [ref, setRef] = useState<string | null>(null);
-  const [assignData, setAssignData] = useState<typeof assigns>();
 
   const [searchParams, setSearchParams] = useSearchParams();
-
-  useEffect(() => {
-    const a = assigns.find((f: any) => f.referenceNo === ref);
-    setAssignData(a);
-  }, [assigns, ref]);
-
-  // console.log(assignData?.length);
 
   const message = searchParams.get("message");
   const statusCode = searchParams.get("status");
@@ -130,77 +123,77 @@ const CreateHouseFunc = ({
       <Card className="">
         <CardHeader>
           <div className="flex justify-between items-center">
-            <CardTitle className="text-2xl">Create Payment</CardTitle>
+            <CardTitle className="text-2xl">Payment</CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           <Form method="post">
             <Input type="hidden" name="userId" id="userId" value={userId} />
-            <Input type="hidden" value={ref?.toString()} name="ref" />
-            <Input type="hidden" value={assignData?.id.toString()} name="id" />
+            <Input type="hidden" value={assigns.referenceNo} name="ref" />
+            <Input type="hidden" value={assigns.id} name="id" />
             <div className="flex flex-col gap-6">
-              <div className="grid gap-2">
+              {/* <div className="grid gap-2">
                 <Label htmlFor="renter">Search Reference</Label>
                 <SearchReference onChange={(reff: any) => setRef(reff)} />
-              </div>
+              </div> */}
 
-              <div hidden={!assignData ? true : false}>
+              <div>
                 <div className="grid gap-2">
                   <Label htmlFor="renter">Renter Information</Label>
                   <div className="grid grid-cols-3 gap-4">
                     <Input
-                      value={`Assign ID- ${
-                        assignData && assignData.id.toString().length
-                          ? assignData.id.toString()
-                          : ""
+                      value={`Reference Number- ${
+                        assigns && assigns.referenceNo.length
+                          ? assigns.referenceNo
+                          : "No data"
                       }`}
                       disabled
                     />
                     <Input
                       value={`Name- ${
-                        assignData && assignData?.renter.name.length
-                          ? assignData?.renter.name
-                          : ""
+                        assigns && assigns?.renter.name.length
+                          ? assigns?.renter.name
+                          : "No data"
                       }`}
                       disabled
                     />
                     <Input
                       value={`Mobile- ${
-                        assignData && assignData?.renter?.phoneNumber?.length
-                          ? assignData?.renter.phoneNumber
-                          : ""
+                        assigns && assigns?.renter?.phoneNumber?.length
+                          ? assigns?.renter.phoneNumber
+                          : "No data"
                       }`}
                       disabled
                     />
                     <Input
                       value={`FlatNumber- ${
-                        assignData && assignData?.flat.name.length
-                          ? assignData?.flat.name
-                          : ""
+                        assigns && assigns?.flat.name.length
+                          ? assigns?.flat.name
+                          : "No data"
                       }`}
                       disabled
                     />
                     <Input
                       value={`FlatRent- ${
-                        assignData && assignData?.flatRent.toString().length
-                          ? assignData?.flatRent
-                          : ""
+                        assigns && assigns?.flatRent.toString().length
+                          ? BdtCurrencyFormate(assigns?.flatRent)
+                          : "No data"
                       }`}
                       disabled
                     />
                     <Input
                       value={`DueRent- ${
-                        assignData && assignData?.dueRent?.toString().length
-                          ? assignData?.dueRent
-                          : ""
+                        assigns && assigns?.dueRent?.toString().length
+                          ? BdtCurrencyFormate(assigns.dueRent)
+                          : "No data"
                       }`}
                       disabled
                     />
                     <Input
                       value={`AdvanceRent- ${
-                        assignData && assignData?.advanceRent.toString().length
-                          ? assignData?.advanceRent
-                          : ""
+                        assigns && assigns.advanceRent.toString().length
+                          ? BdtCurrencyFormate(assigns.advanceRent)
+                          : "No data"
                       }`}
                       disabled
                     />
@@ -247,7 +240,6 @@ const CreateHouseFunc = ({
                   <SelectContent>
                     <SelectGroup>
                       <SelectItem value={"rent"}>Rent</SelectItem>
-                      <SelectItem value={"duerent"}>Due Rent</SelectItem>
                       <SelectItem value={"flatadvance"}>
                         Flat Advance
                       </SelectItem>
@@ -279,7 +271,7 @@ const CreateHouseFunc = ({
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="paymentDue">Payment Due Amount</Label>
+                <Label htmlFor="paymentDue">Due Amount</Label>
                 <Input
                   id="paymentDue"
                   name="paymentDue"
@@ -289,7 +281,7 @@ const CreateHouseFunc = ({
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="paymentAdvance">Payment Advance Amount</Label>
+                <Label htmlFor="paymentAdvance">Advance Amount</Label>
                 <Input
                   id="paymentAdvance"
                   name="paymentAdvance"
@@ -355,9 +347,9 @@ const CreateHouseFunc = ({
                 onClick={() => {
                   toast({
                     variant: "destructive",
-                    title: "Create cancelled",
+                    title: "Payment cancelled",
                   });
-                  navigate("/dashboard/payment");
+                  navigate(`/dashboard/assign/view-assign/${assigns.id}`);
                 }}
                 className="w-full"
               >
@@ -371,7 +363,7 @@ const CreateHouseFunc = ({
   );
 };
 
-export default CreateHouseFunc;
+export default CreatePaymentFunc;
 
 export function ErrorBoundary() {
   const error = useRouteError();

@@ -1,4 +1,3 @@
-import { ModeToggle } from "~/components/mode-toggle";
 import {
   SidebarInset,
   SidebarProvider,
@@ -12,14 +11,15 @@ import {
   useRouteError,
   useSearchParams,
   useNavigation,
-} from "@remix-run/react";
+  LoaderFunctionArgs,
+} from "react-router";
 import { Separator } from "~/components/ui/separator";
 import { authCookie, userIdCookie } from "~/cookies.server";
 import { useEffect, useState } from "react";
-import { LoaderFunctionArgs } from "@remix-run/node";
 import { Toaster } from "~/components/ui/toaster";
 import { toast } from "~/hooks/use-toast";
 import { GetUser, UserRole } from "~/components/data";
+import ThemeToggle from "~/mode-toggle";
 
 export const action = async () => {
   return redirect("/", {
@@ -35,14 +35,19 @@ export const action = async () => {
 // Loader for redirection to /dashboard/home
 export const loader = async ({ request }: LoaderFunctionArgs) => {
   // If the current route is /dashboard, redirect to /dashboard/home
-  const url = new URL(request.url);
-  if (url.pathname === "/dashboard" || url.pathname === "/dashboard/") {
-    return redirect("/dashboard/home");
-  }
   const cookieHeader = request.headers.get("Cookie");
   const cookieUserId = request.headers.get("Cookie");
   const cookie = (await authCookie.parse(cookieHeader)) || null;
   const userId = (await userIdCookie.parse(cookieUserId)) || null;
+
+  if (!cookie) {
+    return redirect("/");
+  }
+
+  const url = new URL(request.url);
+  if (url.pathname === "/dashboard" || url.pathname === "/dashboard/") {
+    return redirect("/dashboard/home");
+  }
   const user = await GetUser(userId, cookie);
   const userRole = await UserRole(userId);
 
@@ -87,10 +92,13 @@ const DashboardLayout = () => {
     <SidebarProvider>
       <AppSidebar openB={isSidebarOpen} />
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
-          <div className="flex w-full items-center px-6">
-            <SidebarTrigger className="-ml-1" onClick={toggleSidebar} />
-            <ModeToggle />
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          <div className="flex w-full items-center px-6 gap-4">
+            <SidebarTrigger
+              className="-ml-1 cursor-pointer"
+              onClick={toggleSidebar}
+            />
+            <ThemeToggle />
           </div>
         </header>
         <Separator />

@@ -16,7 +16,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData } from "react-router";
 import { loader } from "~/routes/dashboard.payment.create-payment";
 
 type SelectRenterProps = {
