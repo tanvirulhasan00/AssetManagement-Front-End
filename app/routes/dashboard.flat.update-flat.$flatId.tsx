@@ -57,6 +57,8 @@ export const action = async ({ request }: ActionFunctionArgs) => {
   const cookieHeader = request.headers.get("Cookie");
   const token = (await authCookie.parse(cookieHeader)) || null;
 
+  console.log("flat", formPayload);
+
   try {
     const response = await Update(formPayload, token, "flat");
 
