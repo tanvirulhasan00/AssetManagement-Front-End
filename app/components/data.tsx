@@ -157,7 +157,6 @@ export const CreateMulti = async (
   authToken: string,
   endPoint: string
 ) => {
-  console.log("gg", formPayload);
   const response = await axios.post(
     `http://localhost:5233/api/v1/${endPoint}/create`,
     formPayload,
